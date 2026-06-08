@@ -879,6 +879,171 @@
       cursor: not-allowed;
     }
 
+    .tab-row,
+    .filter-row,
+    .deck-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+
+    .tab-row button,
+    .filter-row button,
+    .deck-tabs button {
+      min-height: 34px;
+      padding: 7px 11px;
+      border: 2px solid var(--navy);
+      border-radius: 999px;
+      background: #fffdf3;
+      box-shadow: 0 3px 0 var(--navy);
+      font-size: 12px;
+      font-weight: 1000;
+    }
+
+    .tab-row button.active,
+    .filter-row button.active,
+    .deck-tabs button.active {
+      background: var(--aqua);
+    }
+
+    .power-workbench,
+    .formation-workbench {
+      display: grid;
+      grid-template-columns: minmax(280px, .9fr) minmax(0, 1.1fr);
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .power-focus,
+    .formation-detail,
+    .combo-panel,
+    .facility-panel {
+      border: 3px solid var(--navy);
+      border-radius: 14px;
+      background: rgba(255, 253, 243, .96);
+      box-shadow: 5px 5px 0 rgba(16, 43, 63, .62);
+      padding: 13px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      margin: 10px 0;
+    }
+
+    .stat-pill {
+      padding: 7px;
+      border: 2px solid rgba(16, 43, 63, .35);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .66);
+      color: #506976;
+      font-size: 11px;
+      font-weight: 1000;
+    }
+
+    .unit-list {
+      display: grid;
+      max-height: 420px;
+      overflow-y: auto;
+      gap: 8px;
+      padding-right: 6px;
+    }
+
+    .unit-list-button {
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 9px;
+      min-height: 62px;
+      padding: 7px;
+      border: 2px solid var(--navy);
+      border-radius: 10px;
+      background: #fffdf3;
+      text-align: left;
+      font-weight: 1000;
+    }
+
+    .unit-list-button.active {
+      background: #dffaf5;
+    }
+
+    .unit-list-button.locked {
+      opacity: .55;
+      filter: grayscale(.65);
+    }
+
+    .unit-list-button img {
+      width: 54px;
+      height: 46px;
+      object-fit: contain;
+    }
+
+    .deck-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .deck-slot.selected {
+      outline: 4px solid var(--coral);
+      background: #fff1b8;
+    }
+
+    .deck-slot.combo-source {
+      box-shadow: inset 0 0 0 3px #58a96f, 3px 3px 0 rgba(16, 43, 63, .52);
+    }
+
+    .combo-list {
+      display: grid;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .combo-item {
+      padding: 8px;
+      border: 2px solid rgba(16, 43, 63, .3);
+      border-radius: 9px;
+      background: rgba(255, 255, 255, .62);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .combo-item.active {
+      border-color: var(--navy);
+      background: #dffaf5;
+    }
+
+    .stage-enemies,
+    .stage-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .enemy-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border: 2px solid rgba(16, 43, 63, .35);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .72);
+      font-size: 11px;
+      font-weight: 1000;
+    }
+
+    .enemy-chip img {
+      width: 28px;
+      height: 24px;
+      object-fit: contain;
+    }
+
     .deck-strip {
       display: flex;
       flex-wrap: wrap;
@@ -1120,6 +1285,15 @@
 
       .gacha-machine {
         grid-template-columns: 1fr;
+      }
+
+      .power-workbench,
+      .formation-workbench {
+        grid-template-columns: 1fr;
+      }
+
+      .unit-list {
+        max-height: 260px;
       }
 
       .home-hero {
@@ -1429,8 +1603,10 @@
         </div>
         <div class="resource-strip">
           <div class="resource-pill">XP <span id="xpValue">0</span></div>
+          <div class="resource-pill">NP <span id="npValue">0</span></div>
           <div class="resource-pill">ほね缶 <span id="boneCanValue">0</span></div>
           <div class="resource-pill">チケット <span id="ticketValue">0</span></div>
+          <div class="resource-pill">犬目 <span id="catseyeValue">0</span></div>
           <div class="resource-pill">統率力 <span id="energyValue">0</span></div>
         </div>
       </div>
@@ -1476,14 +1652,25 @@
           <section id="powerPanel" class="menu-panel-content hidden">
             <div class="eyebrow">POWER UP</div>
             <h2>パワーアップ</h2>
-            <p class="lead">XPを使ってわんこ軍の体力と攻撃力を上げます。</p>
-            <div class="card-grid" id="powerList"></div>
+            <p class="lead">XPでレベルアップ、犬目で上限解放、NPで本能強化。施設強化は戦闘中のごはん、遠吠え、拠点HPに反映されます。</p>
+            <div class="tab-row" id="powerTabs"></div>
+            <div class="power-workbench">
+              <div class="power-focus" id="powerFocus"></div>
+              <div>
+                <div class="unit-list" id="powerUnitList"></div>
+              </div>
+            </div>
+            <div class="facility-panel">
+              <div class="stage-name">施設パワーアップ</div>
+              <p class="item-meta">働き犬、財布、研究力、会計、勉強力、統率力、遠吠え、犬小屋を強化します。</p>
+              <div class="card-grid" id="facilityList"></div>
+            </div>
           </section>
 
           <section id="gachaPanel" class="menu-panel-content hidden">
             <div class="eyebrow">GACHA</div>
             <h2>わんこガチャ</h2>
-            <p class="lead">チケットまたはほね缶で新しいわんこを仲間にできます。被ったキャラはXPに変換されます。</p>
+            <p class="lead">チケットまたはほね缶で新しいわんこを仲間にできます。被ったキャラはプラス値が上がり、NPも少し獲得します。</p>
             <div class="gacha-machine">
               <div class="gacha-box">
                 <div>
@@ -1515,7 +1702,20 @@
             <div class="eyebrow">FORMATION</div>
             <h2>キャラクター編成</h2>
             <p class="lead">戦闘に出すわんこを選びます。最低3体、最大10体まで。戦闘中は回転ボタンで表5体と裏5体を切り替えます。</p>
+            <div class="deck-toolbar">
+              <div class="deck-tabs" id="formationDeckTabs"></div>
+              <div class="item-meta">上段5枠はわんコンボ判定対象。スロットを選んでからキャラを入れると位置を指定できます。</div>
+            </div>
             <div class="deck-strip formation-deck" id="deckList"></div>
+            <div class="formation-workbench">
+              <div class="formation-detail" id="formationDetail"></div>
+              <div class="combo-panel">
+                <div class="stage-name">わんコンボ</div>
+                <p class="item-meta">表の5枠に指定キャラが入ると戦闘開始時や能力に補正が入ります。</p>
+                <div class="combo-list" id="comboList"></div>
+              </div>
+            </div>
+            <div class="filter-row" id="formationFilters"></div>
             <div class="card-grid" id="formationList"></div>
           </section>
 
@@ -1596,13 +1796,23 @@
       resultHomeButton: document.getElementById("resultHomeButton"),
       baseScreen: document.getElementById("baseScreen"),
       xpValue: document.getElementById("xpValue"),
+      npValue: document.getElementById("npValue"),
       boneCanValue: document.getElementById("boneCanValue"),
       ticketValue: document.getElementById("ticketValue"),
+      catseyeValue: document.getElementById("catseyeValue"),
       energyValue: document.getElementById("energyValue"),
       stageList: document.getElementById("stageList"),
       powerList: document.getElementById("powerList"),
+      powerTabs: document.getElementById("powerTabs"),
+      powerFocus: document.getElementById("powerFocus"),
+      powerUnitList: document.getElementById("powerUnitList"),
+      facilityList: document.getElementById("facilityList"),
       formationList: document.getElementById("formationList"),
       deckList: document.getElementById("deckList"),
+      formationDeckTabs: document.getElementById("formationDeckTabs"),
+      formationDetail: document.getElementById("formationDetail"),
+      formationFilters: document.getElementById("formationFilters"),
+      comboList: document.getElementById("comboList"),
       homeDeck: document.getElementById("homeDeck"),
       gachaResults: document.getElementById("gachaResults"),
       gachaInfoButton: document.getElementById("gachaInfoButton"),
@@ -1883,6 +2093,82 @@
       ["rocketwan", 1.5], ["kingwan", 1.5], ["goldwan", 1.2]
     ];
 
+    const powerCategories = ["基本", "レア", "激レア", "超激レア"];
+    const formationDeckNames = ["汎用編成", "赤い敵対策", "長射程対策"];
+    const formationFilters = [
+      { id: "owned", label: "所持" },
+      { id: "all", label: "全て" },
+      { id: "基本", label: "基本" },
+      { id: "レア", label: "レア" },
+      { id: "激レア", label: "激レア" },
+      { id: "超激レア", label: "超激レア" },
+      { id: "wall", label: "壁" },
+      { id: "ranged", label: "遠距離" },
+      { id: "tank", label: "高体力" }
+    ];
+
+    const facilityDefinitions = [
+      { id: "workerEfficiency", name: "働き犬仕事効率", max: 10, baseCost: 180, description: "戦闘中のごはん増加速度が上がる。" },
+      { id: "wallet", name: "わんこ財布", max: 10, baseCost: 210, description: "戦闘中に持てるごはん上限が上がる。" },
+      { id: "research", name: "研究力", max: 10, baseCost: 240, description: "味方の再生産時間を短縮する。" },
+      { id: "accounting", name: "会計力", max: 10, baseCost: 220, description: "敵撃破時に得るごはんが増える。" },
+      { id: "study", name: "勉強力", max: 10, baseCost: 260, description: "ステージ勝利時のXPが増える。" },
+      { id: "energy", name: "統率力", max: 10, baseCost: 260, description: "統率力の最大値と回復上限が上がる。" },
+      { id: "cannonPower", name: "遠吠え威力", max: 10, baseCost: 230, description: "遠吠えのダメージと押し戻しが強くなる。" },
+      { id: "cannonCharge", name: "遠吠えチャージ", max: 10, baseCost: 230, description: "遠吠えゲージが溜まりやすくなる。" },
+      { id: "cannonRange", name: "遠吠え射程", max: 10, baseCost: 210, description: "遠吠えで届く範囲が広がる。" },
+      { id: "baseHealth", name: "犬小屋体力", max: 10, baseCost: 250, description: "わんこハウスの最大HPが上がる。" }
+    ];
+
+    const comboDefinitions = [
+      {
+        id: "walkies",
+        name: "朝の散歩",
+        unitIds: ["wanko", "mamewanko"],
+        description: "戦闘開始時のごはん +150",
+        effects: { initialMoney: 150 }
+      },
+      {
+        id: "guardShift",
+        name: "番犬シフト",
+        unitIds: ["wanko", "kabawan", "guardwan"],
+        description: "犬小屋体力 +600",
+        effects: { baseHp: 600 }
+      },
+      {
+        id: "researchHowl",
+        name: "遠吠え研究会",
+        unitIds: ["nyoro", "policewanko", "dragonwan"],
+        description: "再生産 -8% / 遠吠え初期 +15%",
+        effects: { research: 0.08, cannonStart: 0.15 }
+      },
+      {
+        id: "powerPack",
+        name: "力自慢の群れ",
+        unitIds: ["goriwan", "sumowan", "kingwan"],
+        description: "味方攻撃力 +8%",
+        effects: { attack: 0.08 }
+      },
+      {
+        id: "redNose",
+        name: "赤鼻突撃隊",
+        unitIds: ["akabuhi", "chefwan", "samuraiwan"],
+        description: "味方体力 +6% / 移動速度 +4%",
+        effects: { hp: 0.06, speed: 0.04 }
+      }
+    ];
+
+    const formNameOverrides = {
+      wanko: ["わんこ", "わんこビルダー", "わんこモヒカン"],
+      nyoro: ["にょろ犬", "にょろロング", "ムキにょろ犬"],
+      theguy: ["例の犬", "勇者犬", "暗黒犬"],
+      wanic: ["ワニワン", "ワニワンダッシュ", "ワニワンライオン"],
+      goriwan: ["ゴリワン", "ゴリワン兄貴", "剛腕ゴリワン"],
+      kabawan: ["カバワン", "カバワン城壁", "ゴムカバワン"],
+      akabuhi: ["赤ブヒ", "赤ブヒ隊長", "赤ブヒ島"],
+      paondog: ["パオーン犬", "パオーン砲犬", "キングパオーン犬"]
+    };
+
     const spriteImages = Object.fromEntries(Object.entries(spritePaths).map(([id, path]) => {
       const image = new Image();
       image.src = path;
@@ -1895,15 +2181,27 @@
     const BATTLE_ROW_SIZE = 5;
 
     function createDefaultSave() {
+      const starterDeck = starterUnitIds.slice(0, DECK_LIMIT);
       return {
         xp: 1200,
+        np: 0,
         boneCans: 360,
         tickets: 3,
         energy: 60,
+        catseyes: { "基本": 3, "レア": 2, "激レア": 1, "超激レア": 1 },
         unitLevels: Object.fromEntries(allyTypes.map(type => [type.id, 1])),
+        plusLevels: Object.fromEntries(allyTypes.map(type => [type.id, 0])),
+        unlockedForms: Object.fromEntries(allyTypes.map(type => [type.id, 1])),
+        unitForms: Object.fromEntries(allyTypes.map(type => [type.id, 1])),
+        catseyeCaps: Object.fromEntries(allyTypes.map(type => [type.id, 0])),
+        talents: Object.fromEntries(allyTypes.map(type => [type.id, { attack: 0, hp: 0, speed: 0 }])),
+        facilities: Object.fromEntries(facilityDefinitions.map(facility => [facility.id, 1])),
         ownedUnits: Object.fromEntries(allyTypes.map(type => [type.id, starterUnitIds.includes(type.id)])),
-        deck: starterUnitIds.slice(),
+        decks: formationDeckNames.map((_, index) => index === 0 ? starterDeck.slice() : starterDeck.slice(0, 5)),
+        currentDeckIndex: 0,
+        deck: starterDeck.slice(),
         clearedStages: {},
+        clearDecks: {},
         items: Object.fromEntries(itemDefinitions.map(item => [item.id, item.id === "boneBoost" ? 1 : 0])),
         equippedItems: Object.fromEntries(itemDefinitions.map(item => [item.id, false])),
         options: { se: true, autoSpeed: false }
@@ -1919,12 +2217,23 @@
           ...fallback,
           ...loaded,
           unitLevels: { ...fallback.unitLevels, ...(loaded.unitLevels || {}) },
+          plusLevels: { ...fallback.plusLevels, ...(loaded.plusLevels || {}) },
+          unlockedForms: { ...fallback.unlockedForms, ...(loaded.unlockedForms || {}) },
+          unitForms: { ...fallback.unitForms, ...(loaded.unitForms || {}) },
+          catseyeCaps: { ...fallback.catseyeCaps, ...(loaded.catseyeCaps || {}) },
+          talents: mergeTalentData(fallback.talents, loaded.talents || {}),
+          facilities: { ...fallback.facilities, ...(loaded.facilities || {}) },
           ownedUnits: { ...fallback.ownedUnits, ...(loaded.ownedUnits || {}) },
+          catseyes: { ...fallback.catseyes, ...(loaded.catseyes || {}) },
           items: { ...fallback.items, ...(loaded.items || {}) },
           equippedItems: { ...fallback.equippedItems, ...(loaded.equippedItems || {}) },
           clearedStages: { ...fallback.clearedStages, ...(loaded.clearedStages || {}) },
+          clearDecks: { ...fallback.clearDecks, ...(loaded.clearDecks || {}) },
           options: { ...fallback.options, ...(loaded.options || {}) },
+          np: Number.isFinite(loaded.np) ? loaded.np : fallback.np,
           tickets: Number.isFinite(loaded.tickets) ? loaded.tickets : fallback.tickets,
+          currentDeckIndex: Number.isInteger(loaded.currentDeckIndex) ? Math.max(0, Math.min(formationDeckNames.length - 1, loaded.currentDeckIndex)) : fallback.currentDeckIndex,
+          decks: normalizeLoadedDecks(loaded, fallback),
           deck: Array.isArray(loaded.deck) && loaded.deck.length ? loaded.deck.filter(id => allyTypes.some(type => type.id === id)).slice(0, DECK_LIMIT) : fallback.deck
         };
       } catch (_) {
@@ -1932,14 +2241,38 @@
       }
     }
 
+    function mergeTalentData(fallbackTalents, loadedTalents) {
+      const merged = {};
+      for (const type of allyTypes) {
+        merged[type.id] = { ...fallbackTalents[type.id], ...(loadedTalents[type.id] || {}) };
+      }
+      return merged;
+    }
+
+    function normalizeLoadedDecks(loaded, fallback) {
+      const sourceDecks = Array.isArray(loaded.decks) ? loaded.decks : null;
+      return formationDeckNames.map((_, index) => {
+        const source = sourceDecks?.[index] || (index === 0 ? loaded.deck : null) || fallback.decks[index];
+        return Array.isArray(source)
+          ? source.filter(id => id === null || allyTypes.some(type => type.id === id)).slice(0, DECK_LIMIT)
+          : fallback.decks[index].slice();
+      });
+    }
+
     function saveGame() {
+      saveData.energy = Math.min(getMaxEnergy(), Math.max(0, saveData.energy || 0));
       localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
       renderResourceStrip();
     }
 
     let saveData = loadSave();
+    let selectedPowerCategory = "基本";
+    let selectedPowerUnitId = starterUnitIds[0];
+    let selectedFormationSlot = 0;
+    let formationFilter = "owned";
     let currentStage = stageDefinitions[0];
     let activeBattleItems = {};
+    let battleComboEffects = {};
 
     const units = [];
     const particles = [];
@@ -1976,37 +2309,179 @@
     let stats = { deployed: 0, defeated: 0 };
     let battleDeckPage = 0;
 
-    function getDeckTypes() {
-      const deck = saveData.deck.filter(id => allyTypes.some(type => type.id === id) && saveData.ownedUnits[id]);
-      if (deck.length < 3) {
-        saveData.deck = allyTypes.filter(type => saveData.ownedUnits[type.id]).slice(0, 3).map(type => type.id);
-        saveGame();
+    function getTypeById(typeId) {
+      return allyTypes.find(type => type.id === typeId) || null;
+    }
+
+    function normalizeRuntimeSave() {
+      saveData.currentDeckIndex = Math.max(0, Math.min(formationDeckNames.length - 1, saveData.currentDeckIndex || 0));
+      saveData.decks = formationDeckNames.map((_, index) => normalizeDeckSlots(saveData.decks?.[index] || (index === 0 ? saveData.deck : [])));
+      syncActiveDeck(false);
+      const maxEnergy = getMaxEnergy();
+      saveData.energy = Math.min(maxEnergy, Math.max(0, saveData.energy || 0));
+      for (const type of allyTypes) {
+        if (saveData.unitLevels[type.id] >= 3) saveData.unlockedForms[type.id] = Math.max(saveData.unlockedForms[type.id] || 1, 2);
+        saveData.unitForms[type.id] = Math.min(saveData.unitForms[type.id] || 1, getUnlockedFormCount(type.id));
       }
-      saveData.deck = deck.length >= 3 ? deck.slice(0, DECK_LIMIT) : saveData.deck;
-      return saveData.deck.map(id => allyTypes.find(type => type.id === id)).filter(Boolean);
+    }
+
+    function normalizeDeckSlots(deck) {
+      const seen = new Set();
+      const normalized = [];
+      for (const id of Array.isArray(deck) ? deck : []) {
+        if (id === null || id === undefined || id === "") {
+          normalized.push(null);
+        } else if (!seen.has(id) && getTypeById(id) && saveData.ownedUnits[id]) {
+          normalized.push(id);
+          seen.add(id);
+        }
+        if (normalized.length >= DECK_LIMIT) break;
+      }
+      while (normalized.length < DECK_LIMIT) normalized.push(null);
+
+      const ownedCount = normalized.filter(Boolean).length;
+      if (ownedCount < 3) {
+        for (const type of allyTypes) {
+          if (!saveData.ownedUnits[type.id] || seen.has(type.id)) continue;
+          const emptyIndex = normalized.indexOf(null);
+          if (emptyIndex < 0) break;
+          normalized[emptyIndex] = type.id;
+          seen.add(type.id);
+          if (normalized.filter(Boolean).length >= 3) break;
+        }
+      }
+      return normalized;
+    }
+
+    function syncActiveDeck(shouldSave = true) {
+      saveData.currentDeckIndex = Math.max(0, Math.min(formationDeckNames.length - 1, saveData.currentDeckIndex || 0));
+      saveData.decks[saveData.currentDeckIndex] = normalizeDeckSlots(saveData.decks[saveData.currentDeckIndex]);
+      saveData.deck = saveData.decks[saveData.currentDeckIndex].slice();
+      if (selectedFormationSlot >= DECK_LIMIT) selectedFormationSlot = 0;
+      if (shouldSave) saveGame();
+    }
+
+    function getDeckSlots() {
+      syncActiveDeck(false);
+      return saveData.deck.slice();
+    }
+
+    function getDeckTypes() {
+      return getDeckSlots().map(id => id ? getTypeById(id) : null).filter(Boolean);
     }
 
     function getBattleDeckTypes() {
+      const deck = getDeckSlots();
       const start = battleDeckPage * BATTLE_ROW_SIZE;
-      return getDeckTypes().slice(start, start + BATTLE_ROW_SIZE);
+      return deck.slice(start, start + BATTLE_ROW_SIZE).map(id => id ? getTypeById(id) : null);
+    }
+
+    function getFirstRowIds() {
+      return getDeckSlots().slice(0, BATTLE_ROW_SIZE).filter(Boolean);
+    }
+
+    function getActiveCombos() {
+      const firstRow = new Set(getFirstRowIds());
+      return comboDefinitions.filter(combo => combo.unitIds.every(id => firstRow.has(id)));
+    }
+
+    function getComboEffects() {
+      const effects = {
+        initialMoney: 0,
+        baseHp: 0,
+        attack: 0,
+        hp: 0,
+        speed: 0,
+        research: 0,
+        cannonStart: 0
+      };
+      for (const combo of getActiveCombos()) {
+        for (const [key, value] of Object.entries(combo.effects)) {
+          effects[key] = (effects[key] || 0) + value;
+        }
+      }
+      return effects;
+    }
+
+    function getFacilityLevel(facilityId) {
+      return Math.max(1, saveData.facilities?.[facilityId] || 1);
+    }
+
+    function getMaxEnergy() {
+      return 60 + (getFacilityLevel("energy") - 1) * 5;
+    }
+
+    function getBaseWalletMax() {
+      return 1200 + (getFacilityLevel("wallet") - 1) * 180;
+    }
+
+    function getWalletStep() {
+      return 400 + (getFacilityLevel("wallet") - 1) * 28;
+    }
+
+    function getUnitMaxLevel(typeId) {
+      return MAX_UNIT_LEVEL + Math.max(0, saveData.catseyeCaps?.[typeId] || 0);
+    }
+
+    function getUnlockedFormCount(typeId) {
+      return Math.max(1, Math.min(3, saveData.unlockedForms?.[typeId] || 1));
+    }
+
+    function getCurrentForm(typeId) {
+      const unlocked = getUnlockedFormCount(typeId);
+      return Math.max(1, Math.min(unlocked, saveData.unitForms?.[typeId] || 1));
+    }
+
+    function getFormNames(type) {
+      return formNameOverrides[type.id] || [type.name, `${type.name}改`, `覚醒${type.name}`];
+    }
+
+    function getDisplayName(typeId) {
+      const type = getTypeById(typeId);
+      if (!type) return "";
+      return getFormNames(type)[getCurrentForm(typeId) - 1] || type.name;
+    }
+
+    function getTalentLevels(typeId) {
+      return saveData.talents?.[typeId] || { attack: 0, hp: 0, speed: 0 };
     }
 
     function getEffectiveAllyType(typeId) {
-      const baseType = allyTypes.find(type => type.id === typeId);
+      const baseType = getTypeById(typeId);
+      if (!baseType) return null;
       const level = saveData.unitLevels[typeId] || 1;
-      const statScale = 1 + (level - 1) * 0.12;
+      const plus = saveData.plusLevels?.[typeId] || 0;
+      const form = getCurrentForm(typeId);
+      const talents = getTalentLevels(typeId);
+      const combo = running ? battleComboEffects : getComboEffects();
+      const formScale = form === 3 ? 1.28 : form === 2 ? 1.12 : 1;
+      const statScale = (1 + (level - 1) * 0.12 + plus * 0.035) * formScale;
+      const hpBonus = 1 + (talents.hp || 0) * 0.04 + (combo.hp || 0);
+      const attackBonus = 1 + (talents.attack || 0) * 0.04 + (combo.attack || 0);
+      const speedBonus = 1 + (talents.speed || 0) * 0.03 + (combo.speed || 0) + (form === 3 ? 0.04 : 0);
+      const cooldownReduction = Math.min(0.36, (getFacilityLevel("research") - 1) * 0.018 + (combo.research || 0));
       return {
         ...baseType,
-        hp: Math.round(baseType.hp * statScale),
-        damage: Math.round(baseType.damage * statScale),
-        level
+        name: getDisplayName(typeId),
+        hp: Math.round(baseType.hp * statScale * hpBonus),
+        damage: Math.round(baseType.damage * statScale * attackBonus),
+        speed: Math.round(baseType.speed * speedBonus),
+        range: Math.round(baseType.range * (form === 3 && baseType.role === "ranged" ? 1.06 : 1)),
+        cooldown: Math.max(0.5, baseType.cooldown * (1 - cooldownReduction) * (form === 3 ? 0.96 : 1)),
+        level,
+        plus,
+        form
       };
     }
 
     function getUpgradePrice(typeId) {
+      const type = getTypeById(typeId);
       const level = saveData.unitLevels[typeId] || 1;
-      return 160 + level * 120 + Math.floor(level * level * 18);
+      const rarityScale = { "基本": 1, "レア": 1.25, "激レア": 1.65, "超激レア": 2.15 }[type?.rarity] || 1;
+      return Math.floor((160 + level * 120 + level * level * 18) * rarityScale);
     }
+
+    normalizeRuntimeSave();
 
     function setScreen(target) {
       [ui.startScreen, ui.baseScreen, ui.resultScreen].forEach(screen => screen.classList.add("hidden"));
@@ -2047,62 +2522,207 @@
 
     function renderResourceStrip() {
       ui.xpValue.textContent = Math.floor(saveData.xp).toLocaleString("ja-JP");
+      ui.npValue.textContent = Math.floor(saveData.np || 0).toLocaleString("ja-JP");
       ui.boneCanValue.textContent = Math.floor(saveData.boneCans).toLocaleString("ja-JP");
       ui.ticketValue.textContent = Math.floor(saveData.tickets).toLocaleString("ja-JP");
-      ui.energyValue.textContent = `${saveData.energy}/60`;
+      ui.catseyeValue.textContent = Object.values(saveData.catseyes || {}).reduce((sum, count) => sum + count, 0);
+      ui.energyValue.textContent = `${saveData.energy}/${getMaxEnergy()}`;
     }
 
     function renderHomeDeck() {
       ui.homeDeck.innerHTML = "";
-      getDeckTypes().forEach(type => {
+      getDeckSlots().forEach((typeId, index) => {
+        const type = typeId ? getTypeById(typeId) : null;
         const slot = document.createElement("div");
-        slot.className = "deck-slot";
-        slot.textContent = `${type.icon} ${type.name}`;
+        slot.className = `deck-slot${type ? "" : " empty"}${index < BATTLE_ROW_SIZE ? " combo-source" : ""}`;
+        slot.innerHTML = type ? `
+          <span class="deck-slot-number">${index + 1}</span>
+          <img src="${spritePaths[type.id]}" alt="${type.name}">
+          <div class="unit-cost">${type.cost}</div>
+        ` : `
+          <span class="deck-slot-number">${index + 1}</span>
+          空き
+        `;
         ui.homeDeck.appendChild(slot);
       });
     }
 
     function renderStageList() {
       ui.stageList.innerHTML = "";
+      const activeComboNames = getActiveCombos().map(combo => combo.name);
       stageDefinitions.forEach(stage => {
         const cleared = Boolean(saveData.clearedStages[stage.id]);
+        const clearDeckAvailable = Array.isArray(saveData.clearDecks?.[stage.id]);
+        const enemyIds = [...new Set(stage.schedule.map(event => event.type))].slice(0, 6);
         const card = document.createElement("div");
         card.className = `stage-card${cleared ? " cleared" : ""}`;
         card.innerHTML = `
           <div class="stage-meta">${stage.area}${cleared ? " / CLEAR" : ""}</div>
           <div class="stage-name">${stage.name}</div>
           <p class="stage-meta">${stage.description}</p>
+          <div class="stage-enemies">
+            ${enemyIds.map(id => {
+              const enemy = enemyTypes[id];
+              return enemy ? `<span class="enemy-chip"><img src="${spritePaths[id]}" alt="">${enemy.name}</span>` : "";
+            }).join("")}
+          </div>
           <div class="stage-meta">統率力 ${stage.energy} / 敵拠点HP ${stage.enemyBaseHp.toLocaleString("ja-JP")}</div>
           <div class="stage-meta">報酬 XP ${stage.rewardXp} / ほね缶 ${stage.rewardBones}</div>
-          <button class="small-action" data-stage="${stage.id}" ${saveData.energy < stage.energy ? "disabled" : ""}>出陣する</button>
+          <div class="stage-meta">使用デッキ: ${formationDeckNames[saveData.currentDeckIndex] || "編成"} / コンボ: ${activeComboNames.length ? activeComboNames.join("、") : "なし"}</div>
+          <div class="stage-tools">
+            <button class="small-action" data-stage="${stage.id}" ${saveData.energy < stage.energy ? "disabled" : ""}>出陣する</button>
+            <button class="small-action" data-copy-clear-deck="${stage.id}" ${clearDeckAvailable ? "" : "disabled"}>前回クリア編成をコピー</button>
+          </div>
         `;
         ui.stageList.appendChild(card);
       });
       ui.stageList.querySelectorAll("[data-stage]").forEach(button => {
         button.addEventListener("click", () => startStage(button.dataset.stage));
       });
+      ui.stageList.querySelectorAll("[data-copy-clear-deck]").forEach(button => {
+        button.addEventListener("click", () => copyClearDeck(button.dataset.copyClearDeck));
+      });
     }
 
     function renderPowerList() {
-      ui.powerList.innerHTML = "";
-      allyTypes.forEach(type => {
+      if (!ui.powerTabs || !ui.powerFocus || !ui.powerUnitList || !ui.facilityList) return;
+      if (!powerCategories.includes(selectedPowerCategory)) selectedPowerCategory = powerCategories[0];
+      const categoryUnits = allyTypes.filter(type => type.rarity === selectedPowerCategory);
+      if (!categoryUnits.some(type => type.id === selectedPowerUnitId)) {
+        selectedPowerUnitId = categoryUnits[0]?.id || allyTypes[0].id;
+      }
+
+      ui.powerTabs.innerHTML = "";
+      powerCategories.forEach(category => {
+        const button = document.createElement("button");
+        button.className = selectedPowerCategory === category ? "active" : "";
+        button.textContent = category;
+        button.addEventListener("click", () => {
+          selectedPowerCategory = category;
+          const ownedInCategory = allyTypes.find(type => type.rarity === category && saveData.ownedUnits[type.id]);
+          selectedPowerUnitId = ownedInCategory?.id || allyTypes.find(type => type.rarity === category)?.id || selectedPowerUnitId;
+          renderPowerList();
+        });
+        ui.powerTabs.appendChild(button);
+      });
+
+      ui.powerUnitList.innerHTML = "";
+      categoryUnits.forEach(type => {
         const owned = Boolean(saveData.ownedUnits[type.id]);
         const level = saveData.unitLevels[type.id] || 1;
-        const price = getUpgradePrice(type.id);
-        const maxed = level >= MAX_UNIT_LEVEL;
-        const card = document.createElement("div");
-        card.className = `unit-card${owned ? "" : " locked"}`;
-        card.innerHTML = `
-          <div class="unit-card-name">${type.icon} ${type.name}<span class="rarity-badge rarity-${type.rarity}">${type.rarity}</span></div>
-          <div class="unit-meta">${owned ? `Lv.${level}` : "未所持"} / 役割: ${describeRole(type.role)}</div>
-          <div class="sprite-preview"><img src="${spritePaths[type.id]}" alt="${type.name}"></div>
-          <div class="unit-meta">次の強化: 体力・攻撃力 +12%</div>
-          <button class="small-action" data-upgrade="${type.id}" ${!owned || maxed || saveData.xp < price ? "disabled" : ""}>${!owned ? "ガチャで解放" : maxed ? "最大Lv" : `XP ${price}で強化`}</button>
+        const plus = saveData.plusLevels[type.id] || 0;
+        const button = document.createElement("button");
+        button.className = `unit-list-button${selectedPowerUnitId === type.id ? " active" : ""}${owned ? "" : " locked"}`;
+        button.innerHTML = `
+          <img src="${spritePaths[type.id]}" alt="">
+          <span>
+            <strong>${getDisplayName(type.id)}</strong>
+            <small>${owned ? `Lv.${level}+${plus} / ${describeRole(type.role)}` : "未所持 / ガチャで解放"}</small>
+          </span>
         `;
-        ui.powerList.appendChild(card);
+        button.addEventListener("click", () => {
+          selectedPowerUnitId = type.id;
+          renderPowerList();
+        });
+        ui.powerUnitList.appendChild(button);
       });
-      ui.powerList.querySelectorAll("[data-upgrade]").forEach(button => {
+
+      renderPowerFocus();
+      renderFacilityList();
+    }
+
+    function renderPowerFocus() {
+      const type = getTypeById(selectedPowerUnitId) || allyTypes[0];
+      const owned = Boolean(saveData.ownedUnits[type.id]);
+      const level = saveData.unitLevels[type.id] || 1;
+      const plus = saveData.plusLevels[type.id] || 0;
+      const maxLevel = getUnitMaxLevel(type.id);
+      const price = getUpgradePrice(type.id);
+      const effective = owned ? getEffectiveAllyType(type.id) : type;
+      const form = getCurrentForm(type.id);
+      const unlockedForms = getUnlockedFormCount(type.id);
+      const catseyes = saveData.catseyes[type.rarity] || 0;
+      const maxed = level >= maxLevel;
+      const thirdFormPrice = getEvolutionPrice(type.id);
+      const talentLevels = getTalentLevels(type.id);
+
+      ui.powerFocus.innerHTML = `
+        <div class="unit-card-name">${getDisplayName(type.id)}<span class="rarity-badge rarity-${type.rarity}">${type.rarity}</span></div>
+        <div class="sprite-preview"><img src="${spritePaths[type.id]}" alt="${type.name}"></div>
+        <div class="stat-grid">
+          <div class="stat-pill">Lv.<strong>${level}+${plus}</strong></div>
+          <div class="stat-pill">形態<strong>${form}/${unlockedForms}</strong></div>
+          <div class="stat-pill">HP<strong>${owned ? effective.hp.toLocaleString("ja-JP") : "--"}</strong></div>
+          <div class="stat-pill">攻撃<strong>${owned ? effective.damage.toLocaleString("ja-JP") : "--"}</strong></div>
+          <div class="stat-pill">射程<strong>${type.range}</strong></div>
+          <div class="stat-pill">コスト<strong>${type.cost}</strong></div>
+        </div>
+        <p class="item-meta">${owned ? `${describeRole(type.role)}。レベル上限 ${maxLevel}、犬目 ${type.rarity}: ${catseyes}個。` : "未所持です。ガチャで入手すると強化できます。"}</p>
+        <button class="small-action" data-upgrade="${type.id}" ${!owned || maxed || saveData.xp < price ? "disabled" : ""}>${!owned ? "未所持" : maxed ? "現在の上限" : `XP ${price.toLocaleString("ja-JP")}で強化`}</button>
+        <button class="small-action" data-catseye="${type.id}" ${!owned || !maxed || catseyes <= 0 || (saveData.catseyeCaps[type.id] || 0) >= 5 ? "disabled" : ""}>犬目で上限 +1</button>
+        <button class="small-action" data-evolve="${type.id}" ${!canUnlockThirdForm(type.id) || saveData.xp < thirdFormPrice ? "disabled" : ""}>第3形態解放 XP ${thirdFormPrice.toLocaleString("ja-JP")}</button>
+        <div class="filter-row">
+          ${getFormNames(type).map((name, index) => {
+            const formNumber = index + 1;
+            const disabled = !owned || formNumber > unlockedForms;
+            return `<button data-switch-form="${type.id}:${formNumber}" class="${formNumber === form ? "active" : ""}" ${disabled ? "disabled" : ""}>${name}</button>`;
+          }).join("")}
+        </div>
+        <div class="facility-panel" style="margin-top:12px;">
+          <div class="stage-name">本能</div>
+          <p class="item-meta">NPを使って長所を伸ばします。各本能は最大Lv5です。</p>
+          <div class="stat-grid">
+            <div class="stat-pill">攻撃<strong>Lv.${talentLevels.attack || 0}</strong></div>
+            <div class="stat-pill">体力<strong>Lv.${talentLevels.hp || 0}</strong></div>
+            <div class="stat-pill">速度<strong>Lv.${talentLevels.speed || 0}</strong></div>
+          </div>
+          <button class="small-action" data-talent="${type.id}:attack" ${!owned || !canUpgradeTalent(type.id, "attack") ? "disabled" : ""}>攻撃本能 NP ${getTalentCost(type.id, "attack")}</button>
+          <button class="small-action" data-talent="${type.id}:hp" ${!owned || !canUpgradeTalent(type.id, "hp") ? "disabled" : ""}>体力本能 NP ${getTalentCost(type.id, "hp")}</button>
+          <button class="small-action" data-talent="${type.id}:speed" ${!owned || !canUpgradeTalent(type.id, "speed") ? "disabled" : ""}>速度本能 NP ${getTalentCost(type.id, "speed")}</button>
+        </div>
+      `;
+
+      ui.powerFocus.querySelectorAll("[data-upgrade]").forEach(button => {
         button.addEventListener("click", () => upgradeUnit(button.dataset.upgrade));
+      });
+      ui.powerFocus.querySelectorAll("[data-catseye]").forEach(button => {
+        button.addEventListener("click", () => useCatseye(button.dataset.catseye));
+      });
+      ui.powerFocus.querySelectorAll("[data-evolve]").forEach(button => {
+        button.addEventListener("click", () => unlockThirdForm(button.dataset.evolve));
+      });
+      ui.powerFocus.querySelectorAll("[data-switch-form]").forEach(button => {
+        button.addEventListener("click", () => {
+          const [typeId, formValue] = button.dataset.switchForm.split(":");
+          switchUnitForm(typeId, Number(formValue));
+        });
+      });
+      ui.powerFocus.querySelectorAll("[data-talent]").forEach(button => {
+        button.addEventListener("click", () => {
+          const [typeId, talentId] = button.dataset.talent.split(":");
+          upgradeTalent(typeId, talentId);
+        });
+      });
+    }
+
+    function renderFacilityList() {
+      ui.facilityList.innerHTML = "";
+      facilityDefinitions.forEach(facility => {
+        const level = getFacilityLevel(facility.id);
+        const cost = getFacilityCost(facility.id);
+        const maxed = level >= facility.max;
+        const card = document.createElement("div");
+        card.className = "item-card";
+        card.innerHTML = `
+          <div class="item-name">${facility.name}</div>
+          <p class="item-meta">${facility.description}</p>
+          <div class="item-meta">Lv.${level}/${facility.max} / 次: XP ${cost.toLocaleString("ja-JP")}</div>
+          <button class="small-action" data-facility="${facility.id}" ${maxed || saveData.xp < cost ? "disabled" : ""}>${maxed ? "最大Lv" : "強化する"}</button>
+        `;
+        ui.facilityList.appendChild(card);
+      });
+      ui.facilityList.querySelectorAll("[data-facility]").forEach(button => {
+        button.addEventListener("click", () => upgradeFacility(button.dataset.facility));
       });
     }
 
@@ -2114,7 +2734,7 @@
         <div class="unit-card-name">${type.icon} ${type.name}</div>
         <div><span class="rarity-badge rarity-${type.rarity}">${type.rarity}</span></div>
         <div class="sprite-preview"><img src="${spritePaths[type.id]}" alt="${type.name}"></div>
-        <div class="item-meta">${result.preview ? `Cost ${type.cost} / ${describeRole(type.role)}` : result.isNew ? "NEW! 編成可能になりました" : `被り: XP +${result.duplicateXp}`}</div>
+        <div class="item-meta">${result.preview ? `Cost ${type.cost} / ${describeRole(type.role)}` : result.isNew ? "NEW! 編成可能になりました" : `被り: +値上昇 / NP +${result.duplicateNp}`}</div>
       `;
       return card;
     }
@@ -2162,14 +2782,17 @@
       for (let i = 0; i < count; i++) {
         const type = rollGachaUnit();
         const alreadyOwned = Boolean(saveData.ownedUnits[type.id]);
-        const duplicateXp = getDuplicateXp(type);
+        const duplicateNp = getDuplicateNp(type);
         if (alreadyOwned) {
-          saveData.xp += duplicateXp;
+          saveData.plusLevels[type.id] = (saveData.plusLevels[type.id] || 0) + 1;
+          saveData.np = (saveData.np || 0) + duplicateNp;
         } else {
           saveData.ownedUnits[type.id] = true;
           saveData.unitLevels[type.id] ||= 1;
+          saveData.unlockedForms[type.id] ||= 1;
+          saveData.unitForms[type.id] ||= 1;
         }
-        results.push({ type, isNew: !alreadyOwned, duplicateXp });
+        results.push({ type, isNew: !alreadyOwned, duplicateNp });
       }
       saveGame();
       renderGachaPanel(results);
@@ -2190,51 +2813,169 @@
       return allyTypes.find(type => type.id === gachaPool[gachaPool.length - 1][0]);
     }
 
-    function getDuplicateXp(type) {
+    function getDuplicateNp(type) {
       return {
-        "基本": 80,
-        "レア": 180,
-        "激レア": 420,
-        "超激レア": 1200
-      }[type.rarity] || 100;
+        "基本": 1,
+        "レア": 2,
+        "激レア": 5,
+        "超激レア": 15
+      }[type.rarity] || 1;
     }
 
     function renderFormationList() {
+      syncActiveDeck(false);
+      if (!ui.formationDeckTabs || !ui.formationDetail || !ui.formationFilters || !ui.comboList) return;
+
+      ui.formationDeckTabs.innerHTML = "";
+      formationDeckNames.forEach((name, index) => {
+        const button = document.createElement("button");
+        button.className = saveData.currentDeckIndex === index ? "active" : "";
+        button.textContent = name;
+        button.addEventListener("click", () => {
+          saveData.currentDeckIndex = index;
+          selectedFormationSlot = 0;
+          syncActiveDeck();
+          renderFormationList();
+          renderHomeDeck();
+          renderStageList();
+          buildUnitButtons();
+        });
+        ui.formationDeckTabs.appendChild(button);
+      });
+
       ui.deckList.innerHTML = "";
-      const deckTypes = getDeckTypes();
+      const deckSlots = getDeckSlots();
       for (let slotIndex = 0; slotIndex < DECK_LIMIT; slotIndex++) {
-        const type = deckTypes[slotIndex];
+        const typeId = deckSlots[slotIndex];
+        const type = typeId ? getTypeById(typeId) : null;
         const slot = document.createElement("div");
-        slot.className = `deck-slot${type ? "" : " empty"}`;
+        slot.className = `deck-slot${type ? "" : " empty"}${selectedFormationSlot === slotIndex ? " selected" : ""}${slotIndex < BATTLE_ROW_SIZE ? " combo-source" : ""}`;
         slot.innerHTML = type ? `
           <span class="deck-slot-number">${slotIndex + 1}</span>
           <img src="${spritePaths[type.id]}" alt="${type.name}">
-          <div>${type.name}</div>
+          <div>${getDisplayName(type.id)}</div>
           <div class="unit-cost">${type.cost}</div>
         ` : `
           <span class="deck-slot-number">${slotIndex + 1}</span>
           空き
         `;
+        slot.addEventListener("click", () => {
+          selectedFormationSlot = slotIndex;
+          renderFormationList();
+        });
         ui.deckList.appendChild(slot);
       }
 
+      renderFormationDetail(deckSlots[selectedFormationSlot]);
+      renderComboList();
+
+      ui.formationFilters.innerHTML = "";
+      formationFilters.forEach(filter => {
+        const button = document.createElement("button");
+        button.className = formationFilter === filter.id ? "active" : "";
+        button.textContent = filter.label;
+        button.addEventListener("click", () => {
+          formationFilter = filter.id;
+          renderFormationList();
+        });
+        ui.formationFilters.appendChild(button);
+      });
+
       ui.formationList.innerHTML = "";
-      allyTypes.forEach(type => {
+      allyTypes.filter(isVisibleInFormationFilter).forEach(type => {
         const owned = Boolean(saveData.ownedUnits[type.id]);
-        const inDeck = saveData.deck.includes(type.id);
-        const fullDeck = saveData.deck.length >= DECK_LIMIT;
+        const inDeck = deckSlots.includes(type.id);
+        const selectedThisType = deckSlots[selectedFormationSlot] === type.id;
+        const effective = owned ? getEffectiveAllyType(type.id) : type;
         const card = document.createElement("div");
         card.className = `unit-card${inDeck ? " in-deck" : ""}${owned ? "" : " locked"}`;
         card.innerHTML = `
-          <div class="unit-card-name">${type.icon} ${type.name}<span class="rarity-badge rarity-${type.rarity}">${type.rarity}</span></div>
-          <div class="unit-meta">${owned ? `Lv.${saveData.unitLevels[type.id] || 1}` : "未所持"} / Cost ${type.cost}</div>
+          <div class="unit-card-name">${getDisplayName(type.id)}<span class="rarity-badge rarity-${type.rarity}">${type.rarity}</span></div>
+          <div class="unit-meta">${owned ? `Lv.${saveData.unitLevels[type.id] || 1}+${saveData.plusLevels[type.id] || 0}` : "未所持"} / Cost ${type.cost}</div>
           <div class="sprite-preview"><img src="${spritePaths[type.id]}" alt="${type.name}"></div>
-          <button class="small-action" data-deck-toggle="${type.id}" ${owned ? "" : "disabled"}>${owned ? (inDeck ? "編成から外す" : fullDeck ? "10枠目と入替" : "編成に入れる") : "ガチャで解放"}</button>
+          <div class="unit-meta">${owned ? `HP ${effective.hp} / 攻撃 ${effective.damage}` : describeRole(type.role)}</div>
+          <button class="small-action" data-deck-toggle="${type.id}" ${owned ? "" : "disabled"}>${owned ? (selectedThisType ? "この枠から外す" : "選択枠に入れる") : "ガチャで解放"}</button>
         `;
         ui.formationList.appendChild(card);
       });
       ui.formationList.querySelectorAll("[data-deck-toggle]").forEach(button => {
         button.addEventListener("click", () => toggleDeckUnit(button.dataset.deckToggle));
+      });
+    }
+
+    function isVisibleInFormationFilter(type) {
+      if (formationFilter === "all") return true;
+      if (formationFilter === "owned") return Boolean(saveData.ownedUnits[type.id]);
+      if (powerCategories.includes(formationFilter)) return type.rarity === formationFilter;
+      return type.role === formationFilter;
+    }
+
+    function renderFormationDetail(typeId) {
+      const type = typeId ? getTypeById(typeId) : null;
+      if (!type) {
+        ui.formationDetail.innerHTML = `
+          <div class="stage-name">スロット ${selectedFormationSlot + 1}</div>
+          <p class="item-meta">空き枠です。下のキャラ一覧から入れるわんこを選んでください。</p>
+          <button class="small-action" data-remove-slot="${selectedFormationSlot}" disabled>空き枠</button>
+        `;
+        return;
+      }
+
+      const effective = getEffectiveAllyType(type.id);
+      const level = saveData.unitLevels[type.id] || 1;
+      const plus = saveData.plusLevels[type.id] || 0;
+      ui.formationDetail.innerHTML = `
+        <div class="unit-card-name">スロット ${selectedFormationSlot + 1}: ${getDisplayName(type.id)}<span class="rarity-badge rarity-${type.rarity}">${type.rarity}</span></div>
+        <div class="sprite-preview"><img src="${spritePaths[type.id]}" alt="${type.name}"></div>
+        <div class="stat-grid">
+          <div class="stat-pill">Lv.<strong>${level}+${plus}</strong></div>
+          <div class="stat-pill">役割<strong>${describeRole(type.role)}</strong></div>
+          <div class="stat-pill">HP<strong>${effective.hp}</strong></div>
+          <div class="stat-pill">攻撃<strong>${effective.damage}</strong></div>
+          <div class="stat-pill">射程<strong>${effective.range}</strong></div>
+          <div class="stat-pill">再生産<strong>${effective.cooldown.toFixed(1)}秒</strong></div>
+        </div>
+        <div class="filter-row">
+          ${getFormNames(type).map((name, index) => {
+            const formNumber = index + 1;
+            const disabled = formNumber > getUnlockedFormCount(type.id);
+            return `<button data-switch-form="${type.id}:${formNumber}" class="${formNumber === getCurrentForm(type.id) ? "active" : ""}" ${disabled ? "disabled" : ""}>${name}</button>`;
+          }).join("")}
+        </div>
+        <button class="small-action" data-remove-slot="${selectedFormationSlot}">この枠から外す</button>
+        <button class="small-action" data-open-power="${type.id}">強化画面で見る</button>
+      `;
+      ui.formationDetail.querySelectorAll("[data-switch-form]").forEach(button => {
+        button.addEventListener("click", () => {
+          const [unitId, formValue] = button.dataset.switchForm.split(":");
+          switchUnitForm(unitId, Number(formValue));
+        });
+      });
+      ui.formationDetail.querySelector("[data-remove-slot]")?.addEventListener("click", event => {
+        removeDeckSlot(Number(event.currentTarget.dataset.removeSlot));
+      });
+      ui.formationDetail.querySelector("[data-open-power]")?.addEventListener("click", event => {
+        const typeIdToOpen = event.currentTarget.dataset.openPower;
+        const unit = getTypeById(typeIdToOpen);
+        selectedPowerCategory = unit.rarity;
+        selectedPowerUnitId = typeIdToOpen;
+        switchMenuPanel("powerPanel");
+        renderAllMenus();
+      });
+    }
+
+    function renderComboList() {
+      const activeCombos = new Set(getActiveCombos().map(combo => combo.id));
+      ui.comboList.innerHTML = "";
+      comboDefinitions.forEach(combo => {
+        const item = document.createElement("div");
+        item.className = `combo-item${activeCombos.has(combo.id) ? " active" : ""}`;
+        item.innerHTML = `
+          <strong>${combo.name}</strong>
+          <span>${combo.description}</span>
+          <small>${combo.unitIds.map(id => getDisplayName(id)).join(" + ")}</small>
+        `;
+        ui.comboList.appendChild(item);
       });
     }
 
@@ -2290,6 +3031,11 @@
       });
       document.getElementById("resetSave").addEventListener("click", () => {
         saveData = createDefaultSave();
+        selectedPowerCategory = "基本";
+        selectedPowerUnitId = starterUnitIds[0];
+        selectedFormationSlot = 0;
+        formationFilter = "owned";
+        normalizeRuntimeSave();
         saveGame();
         renderAllMenus();
       });
@@ -2315,32 +3061,166 @@
     function upgradeUnit(typeId) {
       if (!saveData.ownedUnits[typeId]) return;
       const level = saveData.unitLevels[typeId] || 1;
-      if (level >= MAX_UNIT_LEVEL) return;
+      if (level >= getUnitMaxLevel(typeId)) return;
       const price = getUpgradePrice(typeId);
       if (saveData.xp < price) return;
       saveData.xp -= price;
       saveData.unitLevels[typeId] = level + 1;
+      if (saveData.unitLevels[typeId] >= 3) saveData.unlockedForms[typeId] = Math.max(saveData.unlockedForms[typeId] || 1, 2);
+      saveGame();
+      renderPowerList();
+      renderFormationList();
+      renderHomeDeck();
+      renderStageList();
+    }
+
+    function toggleDeckUnit(typeId) {
+      if (!saveData.ownedUnits[typeId]) return;
+      const slots = getDeckSlots();
+      if (slots[selectedFormationSlot] === typeId) removeDeckSlot(selectedFormationSlot);
+      else assignDeckUnit(typeId, selectedFormationSlot);
+    }
+
+    function assignDeckUnit(typeId, slotIndex = selectedFormationSlot) {
+      if (!saveData.ownedUnits[typeId]) return;
+      const slots = getDeckSlots();
+      slots.forEach((id, index) => {
+        if (id === typeId) slots[index] = null;
+      });
+      slots[Math.max(0, Math.min(DECK_LIMIT - 1, slotIndex))] = typeId;
+      saveData.decks[saveData.currentDeckIndex] = slots;
+      syncActiveDeck(false);
+      saveGame();
+      renderFormationList();
+      renderHomeDeck();
+      renderStageList();
+      buildUnitButtons();
+      refreshUI();
+    }
+
+    function removeDeckSlot(slotIndex) {
+      const slots = getDeckSlots();
+      if (!slots[slotIndex]) return;
+      if (slots.filter(Boolean).length <= 3) {
+        showMessage("最低3体は編成してください", "#ef6f5e");
+        return;
+      }
+      slots[slotIndex] = null;
+      saveData.decks[saveData.currentDeckIndex] = slots;
+      syncActiveDeck(false);
+      saveGame();
+      renderFormationList();
+      renderHomeDeck();
+      renderStageList();
+      buildUnitButtons();
+      refreshUI();
+    }
+
+    function copyClearDeck(stageId) {
+      const deck = saveData.clearDecks?.[stageId];
+      if (!Array.isArray(deck)) return;
+      saveData.decks[saveData.currentDeckIndex] = normalizeDeckSlots(deck);
+      syncActiveDeck(false);
+      saveGame();
+      renderFormationList();
+      renderHomeDeck();
+      renderStageList();
+      buildUnitButtons();
+    }
+
+    function getEvolutionPrice(typeId) {
+      const type = getTypeById(typeId);
+      const rarityScale = { "基本": 1, "レア": 1.35, "激レア": 1.9, "超激レア": 2.7 }[type?.rarity] || 1;
+      return Math.floor(900 * rarityScale + (saveData.plusLevels[typeId] || 0) * 90);
+    }
+
+    function canUnlockThirdForm(typeId) {
+      return Boolean(saveData.ownedUnits[typeId])
+        && getUnlockedFormCount(typeId) < 3
+        && (saveData.unitLevels[typeId] || 1) >= 6;
+    }
+
+    function unlockThirdForm(typeId) {
+      if (!canUnlockThirdForm(typeId)) return;
+      const price = getEvolutionPrice(typeId);
+      if (saveData.xp < price) return;
+      saveData.xp -= price;
+      saveData.unlockedForms[typeId] = 3;
+      saveData.unitForms[typeId] = 3;
+      saveGame();
+      renderPowerList();
+      renderFormationList();
+      renderHomeDeck();
+      buildUnitButtons();
+    }
+
+    function switchUnitForm(typeId, formNumber) {
+      if (!saveData.ownedUnits[typeId] || formNumber > getUnlockedFormCount(typeId)) return;
+      saveData.unitForms[typeId] = Math.max(1, Math.min(3, formNumber));
+      saveGame();
+      renderPowerList();
+      renderFormationList();
+      renderHomeDeck();
+      buildUnitButtons();
+      refreshUI();
+    }
+
+    function useCatseye(typeId) {
+      const type = getTypeById(typeId);
+      if (!type || !saveData.ownedUnits[typeId]) return;
+      const catseyes = saveData.catseyes[type.rarity] || 0;
+      if ((saveData.unitLevels[typeId] || 1) < getUnitMaxLevel(typeId) || catseyes <= 0) return;
+      if ((saveData.catseyeCaps[typeId] || 0) >= 5) return;
+      saveData.catseyes[type.rarity] = catseyes - 1;
+      saveData.catseyeCaps[typeId] = (saveData.catseyeCaps[typeId] || 0) + 1;
+      saveGame();
+      renderPowerList();
+      renderFormationList();
+    }
+
+    function getTalentCost(typeId, talentId) {
+      const type = getTypeById(typeId);
+      const level = getTalentLevels(typeId)[talentId] || 0;
+      const rarityScale = { "基本": 1, "レア": 1.25, "激レア": 1.6, "超激レア": 2.2 }[type?.rarity] || 1;
+      return Math.floor((3 + level * 2) * rarityScale);
+    }
+
+    function canUpgradeTalent(typeId, talentId) {
+      return Boolean(saveData.ownedUnits[typeId])
+        && (getTalentLevels(typeId)[talentId] || 0) < 5
+        && (saveData.np || 0) >= getTalentCost(typeId, talentId);
+    }
+
+    function upgradeTalent(typeId, talentId) {
+      if (!canUpgradeTalent(typeId, talentId)) return;
+      const cost = getTalentCost(typeId, talentId);
+      saveData.np -= cost;
+      saveData.talents[typeId] = { ...getTalentLevels(typeId), [talentId]: (getTalentLevels(typeId)[talentId] || 0) + 1 };
       saveGame();
       renderPowerList();
       renderFormationList();
       renderHomeDeck();
     }
 
-    function toggleDeckUnit(typeId) {
-      if (!saveData.ownedUnits[typeId]) return;
-      const index = saveData.deck.indexOf(typeId);
-      if (index >= 0) {
-        if (saveData.deck.length <= 3) return;
-        saveData.deck.splice(index, 1);
-      } else if (saveData.deck.length < DECK_LIMIT) {
-        saveData.deck.push(typeId);
-      } else {
-        saveData.deck[saveData.deck.length - 1] = typeId;
-      }
+    function getFacilityCost(facilityId) {
+      const facility = facilityDefinitions.find(entry => entry.id === facilityId);
+      const level = getFacilityLevel(facilityId);
+      return Math.floor((facility?.baseCost || 200) + level * 140 + level * level * 36);
+    }
+
+    function upgradeFacility(facilityId) {
+      const facility = facilityDefinitions.find(entry => entry.id === facilityId);
+      if (!facility) return;
+      const level = getFacilityLevel(facilityId);
+      if (level >= facility.max) return;
+      const cost = getFacilityCost(facilityId);
+      if (saveData.xp < cost) return;
+      saveData.xp -= cost;
+      saveData.facilities[facilityId] = level + 1;
+      if (facilityId === "energy") saveData.energy = Math.min(getMaxEnergy(), saveData.energy + 5);
       saveGame();
-      renderFormationList();
-      renderHomeDeck();
-      buildUnitButtons();
+      renderPowerList();
+      renderStageList();
       refreshUI();
     }
 
@@ -2395,7 +3275,7 @@
     function updateDeckSwitchButton() {
       const showingBack = battleDeckPage === 1;
       ui.deckSwitchLabel.textContent = showingBack ? "裏 6-10" : "表 1-5";
-      ui.deckSwitchButton.disabled = getDeckTypes().length <= BATTLE_ROW_SIZE || !running || paused;
+      ui.deckSwitchButton.disabled = !getDeckSlots().slice(BATTLE_ROW_SIZE).some(Boolean) || !running || paused;
     }
 
     function switchBattleDeck() {
@@ -2408,19 +3288,19 @@
 
     function buildUnitButtons() {
       ui.unitBar.innerHTML = "";
-      const deck = getDeckTypes();
-      if (battleDeckPage * BATTLE_ROW_SIZE >= deck.length) battleDeckPage = 0;
+      if (battleDeckPage === 1 && !getDeckSlots().slice(BATTLE_ROW_SIZE).some(Boolean)) battleDeckPage = 0;
       const pageUnits = getBattleDeckTypes();
       for (let index = 0; index < BATTLE_ROW_SIZE; index++) {
         const type = pageUnits[index];
         const button = document.createElement("button");
         button.className = "unit-button";
         if (type) {
+          const effective = getEffectiveAllyType(type.id);
           button.dataset.unit = type.id;
           button.innerHTML = `
             <span class="unit-key">${index + 1}</span>
             <img class="unit-sprite" src="${spritePaths[type.id]}" alt="">
-            <span class="unit-cost">${type.cost}</span>
+            <span class="unit-cost">${effective.cost}</span>
             <span class="cooldown"></span>
           `;
           button.addEventListener("click", () => deploy(type.id));
@@ -2458,17 +3338,21 @@
       floatingTexts.length = 0;
       spawnQueue.length = 0;
       Object.keys(cooldowns).forEach(key => delete cooldowns[key]);
-      base.player.maxHp = 5000 + (activeBattleItems.guardCharm ? 1000 : 0);
+      battleComboEffects = getComboEffects();
+      base.player.maxHp = 5000
+        + (activeBattleItems.guardCharm ? 1000 : 0)
+        + (getFacilityLevel("baseHealth") - 1) * 250
+        + (battleComboEffects.baseHp || 0);
       base.enemy.maxHp = currentStage.enemyBaseHp;
       base.player.hp = base.player.maxHp;
       base.enemy.hp = base.enemy.maxHp;
       base.player.flash = 0;
       base.enemy.flash = 0;
       elapsed = 0;
-      money = 180 + (activeBattleItems.boneBoost ? 400 : 0);
-      moneyMax = 1200;
+      money = 180 + (activeBattleItems.boneBoost ? 400 : 0) + (battleComboEffects.initialMoney || 0);
+      moneyMax = getBaseWalletMax();
       incomeLevel = 1;
-      cannonCharge = activeBattleItems.howlCharge ? 0.75 : 0;
+      cannonCharge = Math.min(1, (activeBattleItems.howlCharge ? 0.75 : 0) + (battleComboEffects.cannonStart || 0));
       scheduleIndex = 0;
       nextAmbientSpawn = 73;
       ambientSpawnsRemaining = 6;
@@ -2508,8 +3392,7 @@
 
     function deploy(typeId) {
       if (!running || paused || ended) return;
-      const baseType = getDeckTypes().find(item => item.id === typeId);
-      const type = baseType ? getEffectiveAllyType(typeId) : null;
+      const type = getDeckSlots().includes(typeId) ? getEffectiveAllyType(typeId) : null;
       if (!type || (cooldowns[type.id] || 0) > 0) return;
       if (units.filter(unit => unit.team === "ally").length >= UNIT_LIMIT) {
         showMessage("これ以上は同時に出撃できません", "#ef6f5e");
@@ -2574,7 +3457,7 @@
       }
       money -= cost;
       incomeLevel++;
-      moneyMax = 1200 + (incomeLevel - 1) * 400;
+      moneyMax = getBaseWalletMax() + (incomeLevel - 1) * getWalletStep();
       showMessage(`ごはんレベル ${incomeLevel}：ほねの増加速度と上限が上昇`, "#58a96f");
       tone(520, 0.1, "sine", 0.035);
       setTimeout(() => tone(690, 0.12, "sine", 0.03), 75);
@@ -2582,7 +3465,8 @@
     }
 
     function getUpgradeCost() {
-      return 300 + (incomeLevel - 1) * 240;
+      const efficiencyDiscount = Math.min(0.18, (getFacilityLevel("workerEfficiency") - 1) * 0.015);
+      return Math.floor((300 + (incomeLevel - 1) * 240) * (1 - efficiencyDiscount));
     }
 
     function fireCannon() {
@@ -2602,10 +3486,12 @@
     }
 
     function resolveCannonImpact() {
-      const targets = units.filter(unit => unit.team === "enemy" && !unit.dead);
+      const reach = PLAYER_BASE_X + 900 + (getFacilityLevel("cannonRange") - 1) * 65;
+      const powerScale = 1 + (getFacilityLevel("cannonPower") - 1) * 0.08;
+      const targets = units.filter(unit => unit.team === "enemy" && !unit.dead && unit.x <= reach);
       for (const target of targets) {
-        damageUnit(target, target.type.role === "boss" ? 450 : 550, null, true);
-        target.knockback += target.type.role === "boss" ? 75 : 145;
+        damageUnit(target, (target.type.role === "boss" ? 450 : 550) * powerScale, null, true);
+        target.knockback += (target.type.role === "boss" ? 75 : 145) * powerScale;
       }
       burst(1180, WORLD.groundY - 30, "#f3bd4d", 45, 230);
       cameraShake = 20;
@@ -2614,8 +3500,10 @@
 
     function update(dt) {
       elapsed += dt;
-      money = Math.min(moneyMax, money + (31 + incomeLevel * 13) * dt);
-      cannonCharge = Math.min(1, cannonCharge + dt / 20);
+      const workerScale = 1 + (getFacilityLevel("workerEfficiency") - 1) * 0.08;
+      const cannonScale = 1 + (getFacilityLevel("cannonCharge") - 1) * 0.07;
+      money = Math.min(moneyMax, money + (31 + incomeLevel * 13) * workerScale * dt);
+      cannonCharge = Math.min(1, cannonCharge + dt / (20 / cannonScale));
       base.player.flash = Math.max(0, base.player.flash - dt * 4);
       base.enemy.flash = Math.max(0, base.enemy.flash - dt * 4);
       cameraShake *= Math.pow(0.025, dt);
@@ -2796,7 +3684,8 @@
         target.dead = true;
         burst(target.x, WORLD.groundY - target.type.size, target.type.color, 16, 150);
         if (target.team === "enemy") {
-          money = Math.min(moneyMax, money + target.type.reward);
+          const accountingScale = 1 + (getFacilityLevel("accounting") - 1) * 0.08;
+          money = Math.min(moneyMax, money + Math.floor(target.type.reward * accountingScale));
           stats.defeated++;
           if (target.type.role === "boss") {
             showMessage("巨神にゃん撃破！ ネコ要塞へ反撃だ！", "#58a96f");
@@ -2906,16 +3795,18 @@
       let rewardText = "";
       if (victory) {
         const firstClear = !saveData.clearedStages[currentStage.id];
-        const xpReward = currentStage.rewardXp + stats.defeated * 6 + (firstClear ? 180 : 0);
+        const studyScale = 1 + (getFacilityLevel("study") - 1) * 0.08;
+        const xpReward = Math.floor((currentStage.rewardXp + stats.defeated * 6 + (firstClear ? 180 : 0)) * studyScale);
         const boneReward = currentStage.rewardBones + (firstClear ? 30 : 0);
         saveData.xp += xpReward;
         saveData.boneCans += boneReward;
         saveData.clearedStages[currentStage.id] = true;
-        saveData.energy = Math.min(60, saveData.energy + 4);
+        saveData.clearDecks[currentStage.id] = getDeckSlots();
+        saveData.energy = Math.min(getMaxEnergy(), saveData.energy + 4);
         saveGame();
         rewardText = ` 報酬: XP ${xpReward.toLocaleString("ja-JP")} / ほね缶 ${boneReward}`;
       } else {
-        saveData.energy = Math.min(60, saveData.energy + 2);
+        saveData.energy = Math.min(getMaxEnergy(), saveData.energy + 2);
         saveGame();
       }
       ui.resultEyebrow.textContent = victory ? "WANKO HOUSE SAFE" : "WANKO HOUSE LOST";
@@ -2996,7 +3887,7 @@
       updateDeckSwitchButton();
 
       document.querySelectorAll(".unit-button").forEach(button => {
-        const type = allyTypes.find(item => item.id === button.dataset.unit);
+        const type = button.dataset.unit ? getEffectiveAllyType(button.dataset.unit) : null;
         if (!type) return;
         const remaining = cooldowns[type.id] || 0;
         button.disabled = money < type.cost || remaining > 0 || paused || !running;
@@ -3677,8 +4568,9 @@
     addEventListener("keydown", event => {
       if (event.repeat) return;
       const deck = getBattleDeckTypes();
-      if (running && event.key >= "1" && event.key <= String(deck.length)) {
-        deploy(deck[Number(event.key) - 1].id);
+      if (running && event.key >= "1" && event.key <= String(BATTLE_ROW_SIZE)) {
+        const type = deck[Number(event.key) - 1];
+        if (type) deploy(type.id);
       } else if (event.code === "Space") {
         event.preventDefault();
         fireCannon();
