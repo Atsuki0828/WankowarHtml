@@ -1,0 +1,3747 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#102b3f">
+  <title>WANKO WARS - わんこ大戦争</title>
+  <style>
+    :root {
+      --ink: #173042;
+      --paper: #fff8df;
+      --cream: #f4e6bb;
+      --navy: #102b3f;
+      --blue: #2c8da3;
+      --aqua: #62d5c8;
+      --coral: #ef6f5e;
+      --gold: #f3bd4d;
+      --green: #58a96f;
+      --shadow: rgba(16, 43, 63, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--navy);
+      color: var(--ink);
+      font-family: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+    }
+
+    button {
+      border: 0;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    button:focus-visible {
+      outline: 4px solid rgba(255, 255, 255, 0.9);
+      outline-offset: 3px;
+    }
+
+    #game {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background: #98dbe0;
+    }
+
+    .hud {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .hud.menu-hidden {
+      display: none;
+    }
+
+    .topbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) auto minmax(160px, 1fr);
+      align-items: start;
+      gap: 14px;
+      padding: 14px 18px;
+    }
+
+    .brand {
+      justify-self: start;
+      padding: 9px 13px 8px;
+      border: 3px solid var(--navy);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: 5px 5px 0 var(--navy);
+      transform: rotate(-1deg);
+    }
+
+    .brand-main {
+      display: block;
+      font-family: Impact, "Arial Black", sans-serif;
+      font-size: clamp(21px, 2.5vw, 36px);
+      line-height: 0.85;
+      letter-spacing: 0.06em;
+    }
+
+    .brand-sub {
+      color: var(--coral);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.25em;
+    }
+
+    .wave-card {
+      min-width: 190px;
+      padding: 8px 16px 9px;
+      border: 3px solid var(--navy);
+      border-radius: 999px;
+      background: var(--paper);
+      box-shadow: 0 5px 0 var(--navy);
+      text-align: center;
+    }
+
+    .wave-label {
+      color: var(--blue);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+    }
+
+    #waveName {
+      font-size: 16px;
+      font-weight: 1000;
+    }
+
+    .top-actions {
+      justify-self: end;
+      display: flex;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .round-button {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--navy);
+      border-radius: 50%;
+      background: var(--paper);
+      box-shadow: 0 4px 0 var(--navy);
+      font-size: 13px;
+      font-weight: 1000;
+    }
+
+    .round-button:active {
+      translate: 0 3px;
+      box-shadow: 0 1px 0 var(--navy);
+    }
+
+    .base-status {
+      position: absolute;
+      top: 104px;
+      width: min(250px, 32vw);
+      padding: 8px 10px;
+      border: 3px solid var(--navy);
+      border-radius: 8px;
+      background: rgba(255, 248, 223, 0.94);
+      box-shadow: 4px 4px 0 rgba(16, 43, 63, 0.75);
+    }
+
+    .base-status.player {
+      left: 18px;
+    }
+
+    .base-status.enemy {
+      right: 18px;
+    }
+
+    .base-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 5px;
+      font-size: 11px;
+      font-weight: 1000;
+    }
+
+    .hp-track {
+      height: 10px;
+      overflow: hidden;
+      border: 2px solid var(--navy);
+      border-radius: 999px;
+      background: #d8cda8;
+    }
+
+    .hp-fill {
+      width: 100%;
+      height: 100%;
+      transform-origin: left center;
+      background: var(--green);
+      transition: width 140ms linear;
+    }
+
+    .enemy .hp-fill {
+      margin-left: auto;
+      background: var(--coral);
+    }
+
+    .message {
+      position: absolute;
+      top: 118px;
+      left: 50%;
+      min-width: 240px;
+      max-width: min(480px, 82vw);
+      padding: 9px 15px;
+      border: 3px solid var(--navy);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: 4px 4px 0 var(--navy);
+      font-size: 13px;
+      font-weight: 1000;
+      text-align: center;
+      opacity: 0;
+      transform: translate(-50%, -12px) rotate(-1deg);
+      transition: 160ms ease;
+    }
+
+    .message.show {
+      opacity: 1;
+      transform: translate(-50%, 0) rotate(-1deg);
+    }
+
+    .bottom-panel {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr) 76px 128px;
+      gap: 12px;
+      align-items: end;
+      padding: 12px 16px 15px;
+      border-top: 4px solid var(--navy);
+      background:
+        linear-gradient(90deg, rgba(16, 43, 63, 0.06) 1px, transparent 1px) 0 0 / 22px 22px,
+        var(--paper);
+      box-shadow: 0 -8px 0 rgba(16, 43, 63, 0.12);
+      pointer-events: auto;
+    }
+
+    .economy {
+      display: grid;
+      gap: 7px;
+    }
+
+    .money-label {
+      color: var(--blue);
+      font-size: 10px;
+      font-weight: 1000;
+      letter-spacing: 0.12em;
+    }
+
+    .money-value {
+      font-family: Impact, "Arial Black", sans-serif;
+      font-size: clamp(24px, 3vw, 38px);
+      line-height: 0.9;
+      letter-spacing: 0.03em;
+    }
+
+    #moneyMax {
+      color: #607581;
+      font-size: 0.55em;
+    }
+
+    .upgrade-button {
+      position: relative;
+      min-height: 46px;
+      overflow: hidden;
+      border: 3px solid var(--navy);
+      border-radius: 7px;
+      background: var(--gold);
+      box-shadow: 0 4px 0 var(--navy);
+      font-size: 12px;
+      font-weight: 1000;
+    }
+
+    .upgrade-button:active:not(:disabled),
+    .unit-button:active:not(:disabled),
+    .deck-switch-button:active:not(:disabled),
+    .cannon-button:active:not(:disabled) {
+      translate: 0 3px;
+      box-shadow: 0 1px 0 var(--navy);
+    }
+
+    .upgrade-button:disabled {
+      filter: grayscale(0.7);
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .unit-bar {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(72px, 1fr));
+      gap: 9px;
+    }
+
+    .unit-button {
+      position: relative;
+      min-height: 83px;
+      overflow: hidden;
+      padding: 7px 5px 5px;
+      border: 3px solid var(--navy);
+      border-radius: 8px;
+      background: #fffdf3;
+      box-shadow: 0 4px 0 var(--navy);
+      font-weight: 1000;
+    }
+
+    .unit-button:hover:not(:disabled) {
+      background: #fff3bd;
+    }
+
+    .unit-button:disabled {
+      color: #657780;
+      cursor: not-allowed;
+    }
+
+    .unit-button.empty {
+      border-style: dashed;
+      background: rgba(255, 255, 255, .55);
+      box-shadow: none;
+      opacity: .62;
+    }
+
+    .unit-icon {
+      display: block;
+      height: 30px;
+      margin-bottom: 2px;
+      font-size: 27px;
+      line-height: 30px;
+    }
+
+    .unit-sprite {
+      display: block;
+      width: 100%;
+      height: 47px;
+      margin: 0 auto 4px;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .unit-name {
+      display: block;
+      overflow: hidden;
+      font-size: 11px;
+      line-height: 1.1;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .unit-cost {
+      display: block;
+      color: var(--coral);
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .unit-key {
+      position: absolute;
+      top: 3px;
+      right: 4px;
+      color: #81919a;
+      font-size: 9px;
+    }
+
+    .cooldown {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 0;
+      background: rgba(16, 43, 63, 0.72);
+      pointer-events: none;
+      transition: height 60ms linear;
+    }
+
+    .deck-switch-button,
+    .cannon-button {
+      position: relative;
+      min-height: 83px;
+      overflow: hidden;
+      padding: 8px;
+      border: 3px solid var(--navy);
+      border-radius: 8px;
+      background: var(--aqua);
+      box-shadow: 0 4px 0 var(--navy);
+      font-size: 12px;
+      font-weight: 1000;
+    }
+
+    .deck-switch-button {
+      background: var(--gold);
+      font-size: 14px;
+    }
+
+    .deck-switch-button .switch-mark {
+      display: block;
+      font-family: Impact, "Arial Black", sans-serif;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .deck-switch-button .switch-label {
+      display: block;
+      margin-top: 4px;
+      font-size: 10px;
+      line-height: 1.1;
+    }
+
+    .pause-menu {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 18;
+      width: min(360px, calc(100vw - 34px));
+      padding: 18px;
+      border: 4px solid var(--navy);
+      border-radius: 16px;
+      background: rgba(255, 253, 243, 0.98);
+      box-shadow: 10px 10px 0 rgba(16, 43, 63, 0.38);
+      text-align: center;
+      transform: translate(-50%, -50%) rotate(-1deg);
+      pointer-events: auto;
+    }
+
+    .pause-title {
+      font-family: Impact, "Arial Black", sans-serif;
+      font-size: 38px;
+      letter-spacing: .08em;
+    }
+
+    .pause-menu .menu-action {
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .cannon-button.ready {
+      animation: cannonPulse 850ms ease-in-out infinite alternate;
+    }
+
+    .cannon-button:disabled {
+      filter: grayscale(0.45);
+      cursor: not-allowed;
+    }
+
+    .cannon-meter {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.52);
+      pointer-events: none;
+    }
+
+    .cannon-icon {
+      display: block;
+      font-size: 26px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      background:
+        radial-gradient(circle at 18% 22%, rgba(98, 213, 200, 0.28), transparent 34%),
+        radial-gradient(circle at 82% 78%, rgba(239, 111, 94, 0.24), transparent 36%),
+        rgba(16, 43, 63, 0.9);
+      backdrop-filter: blur(7px);
+    }
+
+    .overlay.hidden {
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .card {
+      width: min(650px, 100%);
+      padding: clamp(23px, 5vw, 44px);
+      border: 4px solid var(--navy);
+      border-radius: 15px;
+      background:
+        radial-gradient(circle at 10px 10px, rgba(44, 141, 163, 0.11) 2px, transparent 2px) 0 0 / 21px 21px,
+        var(--paper);
+      box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.28);
+      transform: rotate(-0.35deg);
+    }
+
+    .eyebrow {
+      margin-bottom: 8px;
+      color: var(--coral);
+      font-size: 11px;
+      font-weight: 1000;
+      letter-spacing: 0.22em;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      font-family: Impact, "Arial Black", sans-serif;
+      letter-spacing: 0.035em;
+    }
+
+    h1 {
+      font-size: clamp(52px, 11vw, 92px);
+      line-height: 0.82;
+    }
+
+    h1 span {
+      color: var(--blue);
+    }
+
+    h2 {
+      font-size: clamp(42px, 8vw, 72px);
+      line-height: 1;
+    }
+
+    .lead {
+      max-width: 540px;
+      margin: 21px 0;
+      color: #506976;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.75;
+    }
+
+    .howto {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .howto-item {
+      padding: 10px;
+      border: 2px solid var(--navy);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.65);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .howto-item strong {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--blue);
+      font-size: 13px;
+    }
+
+    .primary-button {
+      width: 100%;
+      padding: 14px 18px;
+      border: 3px solid var(--navy);
+      border-radius: 7px;
+      background: var(--coral);
+      color: white;
+      box-shadow: 0 5px 0 var(--navy);
+      font-size: 15px;
+      font-weight: 1000;
+      letter-spacing: 0.1em;
+    }
+
+    .primary-button:active {
+      translate: 0 4px;
+      box-shadow: 0 1px 0 var(--navy);
+    }
+
+    .result-stats {
+      display: flex;
+      gap: 8px;
+      margin: 18px 0 22px;
+    }
+
+    .result-stat {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid var(--navy);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.65);
+      text-align: center;
+    }
+
+    .result-stat span {
+      display: block;
+      color: #6d7e86;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+    }
+
+    .result-stat strong {
+      font-family: Impact, "Arial Black", sans-serif;
+      font-size: 25px;
+    }
+
+    .menu-shell {
+      display: flex;
+      flex-direction: column;
+      width: min(1120px, calc(100vw - 28px));
+      max-height: calc(100vh - 28px);
+      overflow: hidden;
+      border: 4px solid var(--navy);
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(255, 184, 64, 0.92), rgba(255, 120, 46, 0.92)),
+        var(--gold);
+      box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.28);
+    }
+
+    #baseScreen .menu-shell {
+      height: min(760px, calc(100vh - 28px));
+    }
+
+    .menu-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 4px solid var(--navy);
+      background: rgba(255, 248, 223, 0.92);
+    }
+
+    .menu-title {
+      font-family: Impact, "Arial Black", sans-serif;
+      font-size: clamp(25px, 4vw, 46px);
+      letter-spacing: 0.06em;
+    }
+
+    .resource-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .resource-pill {
+      min-width: 112px;
+      padding: 7px 10px;
+      border: 3px solid var(--navy);
+      border-radius: 999px;
+      background: #fffdf3;
+      box-shadow: 0 3px 0 var(--navy);
+      font-size: 12px;
+      font-weight: 1000;
+      text-align: center;
+    }
+
+    .menu-body {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      flex: 1;
+      min-height: 0;
+      background:
+        radial-gradient(circle at 22px 22px, rgba(255,255,255,.24) 4px, transparent 4px) 0 0 / 44px 44px,
+        rgba(255, 224, 129, 0.78);
+    }
+
+    .menu-nav {
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      padding: 16px;
+      border-right: 4px solid var(--navy);
+      background: rgba(16, 43, 63, 0.12);
+    }
+
+    .menu-nav button,
+    .menu-action,
+    .small-action {
+      border: 3px solid var(--navy);
+      border-radius: 9px;
+      background: var(--paper);
+      box-shadow: 0 4px 0 var(--navy);
+      font-weight: 1000;
+    }
+
+    .menu-nav button {
+      min-height: 50px;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .menu-nav button.active {
+      background: var(--aqua);
+    }
+
+    .menu-nav button:active,
+    .menu-action:active,
+    .small-action:active {
+      translate: 0 3px;
+      box-shadow: 0 1px 0 var(--navy);
+    }
+
+    .menu-content {
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 18px;
+      padding-bottom: 32px;
+    }
+
+    .home-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .home-hero,
+    .menu-panel {
+      border: 3px solid var(--navy);
+      border-radius: 14px;
+      background: rgba(255, 248, 223, 0.94);
+      box-shadow: 6px 6px 0 rgba(16, 43, 63, 0.78);
+    }
+
+    .home-hero {
+      position: relative;
+      min-height: 360px;
+      overflow: hidden;
+      padding: 22px;
+      background:
+        linear-gradient(180deg, rgba(255, 142, 45, 0.92), rgba(255, 216, 101, 0.9)),
+        var(--gold);
+    }
+
+    .hero-logo {
+      max-width: 480px;
+      padding: 12px 18px;
+      border: 4px solid var(--navy);
+      border-radius: 16px;
+      background: #fffdf3;
+      box-shadow: 8px 8px 0 var(--navy);
+      transform: rotate(-2deg);
+      font-family: Impact, "Arial Black", sans-serif;
+      font-size: clamp(42px, 8vw, 88px);
+      line-height: .86;
+      letter-spacing: .05em;
+    }
+
+    .hero-logo span {
+      color: var(--coral);
+    }
+
+    .hero-crowd {
+      position: absolute;
+      right: 0;
+      bottom: -5px;
+      left: 0;
+      height: 142px;
+      overflow: hidden;
+      background: linear-gradient(0deg, rgba(255,255,255,.78), rgba(255,255,255,.08));
+    }
+
+    .crowd-face {
+      position: absolute;
+      width: 55px;
+      height: 46px;
+      border: 3px solid var(--navy);
+      border-radius: 55% 55% 45% 45%;
+      background: #fffdf3;
+    }
+
+    .crowd-face::before,
+    .crowd-face::after {
+      content: "";
+      position: absolute;
+      top: 16px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--navy);
+    }
+
+    .crowd-face::before { left: 17px; }
+    .crowd-face::after { right: 17px; }
+
+    .home-actions {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .menu-action {
+      min-height: 58px;
+      padding: 12px;
+      background: var(--gold);
+      font-size: 16px;
+    }
+
+    .menu-action.primary {
+      min-height: 72px;
+      background: var(--coral);
+      color: white;
+      font-size: 20px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .stage-card,
+    .unit-card,
+    .item-card,
+    .option-card {
+      border: 3px solid var(--navy);
+      border-radius: 12px;
+      background: rgba(255, 253, 243, 0.95);
+      box-shadow: 4px 4px 0 rgba(16, 43, 63, 0.72);
+      padding: 12px;
+    }
+
+    .stage-card.cleared {
+      background: #e8ffec;
+    }
+
+    .stage-name,
+    .unit-card-name,
+    .item-name {
+      font-size: 17px;
+      font-weight: 1000;
+    }
+
+    .stage-meta,
+    .unit-meta,
+    .item-meta,
+    .option-card {
+      color: #506976;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.55;
+    }
+
+    .sprite-preview {
+      display: grid;
+      height: 86px;
+      margin: 8px 0;
+      place-items: center;
+      border: 2px dashed rgba(16,43,63,.35);
+      border-radius: 9px;
+      background: rgba(255,255,255,.52);
+    }
+
+    .sprite-preview img {
+      max-width: 100%;
+      max-height: 78px;
+      object-fit: contain;
+    }
+
+    .small-action {
+      width: 100%;
+      min-height: 38px;
+      margin-top: 8px;
+      padding: 8px;
+      background: var(--aqua);
+      font-size: 12px;
+    }
+
+    .small-action:disabled {
+      opacity: .48;
+      filter: grayscale(.6);
+      cursor: not-allowed;
+    }
+
+    .deck-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 10px;
+      border: 3px solid var(--navy);
+      border-radius: 12px;
+      background: rgba(255, 248, 223, 0.92);
+    }
+
+    .deck-strip.formation-deck {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(92px, 1fr));
+      align-items: stretch;
+    }
+
+    .deck-slot {
+      position: relative;
+      min-width: 86px;
+      min-height: 74px;
+      padding: 8px;
+      border: 2px solid var(--navy);
+      border-radius: 8px;
+      background: white;
+      font-size: 11px;
+      font-weight: 1000;
+      text-align: center;
+    }
+
+    .deck-slot.empty {
+      display: grid;
+      place-items: center;
+      border-style: dashed;
+      color: #607581;
+      background: rgba(255, 255, 255, .48);
+    }
+
+    .deck-slot img {
+      display: block;
+      width: 100%;
+      height: 42px;
+      object-fit: contain;
+    }
+
+    .deck-slot-number {
+      position: absolute;
+      top: 3px;
+      left: 5px;
+      color: #81919a;
+      font-size: 9px;
+    }
+
+    .unit-card.in-deck {
+      background: #dffaf5;
+    }
+
+    .unit-card.locked {
+      opacity: .7;
+      filter: grayscale(.65);
+    }
+
+    .rarity-badge {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 2px 7px;
+      border: 2px solid var(--navy);
+      border-radius: 999px;
+      background: var(--paper);
+      color: var(--navy);
+      font-size: 10px;
+      font-weight: 1000;
+      vertical-align: middle;
+    }
+
+    .rarity-基本 { background: #ffffff; }
+    .rarity-レア { background: #dffaf5; }
+    .rarity-激レア { background: #ffe19a; }
+    .rarity-超激レア { background: #ffd2df; }
+
+    .gacha-machine {
+      display: grid;
+      grid-template-columns: minmax(240px, .8fr) minmax(0, 1.2fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .gacha-box {
+      display: grid;
+      min-height: 310px;
+      place-items: center;
+      border: 4px solid var(--navy);
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(255,255,255,.82), transparent 26%),
+        linear-gradient(160deg, #ff6f5e, #f3bd4d);
+      box-shadow: 7px 7px 0 rgba(16,43,63,.75);
+      text-align: center;
+    }
+
+    .gacha-drum {
+      width: 160px;
+      height: 160px;
+      border: 6px solid var(--navy);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%, #fffdf3 0 28%, transparent 29%),
+        conic-gradient(var(--aqua), var(--gold), var(--coral), var(--aqua));
+      box-shadow: inset 0 0 0 14px rgba(255,255,255,.55), 0 8px 0 var(--navy);
+    }
+
+    .gacha-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .gacha-results.scroll-list {
+      max-height: min(58vh, 520px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 4px 8px 12px 4px;
+    }
+
+    .gacha-result {
+      border: 3px solid var(--navy);
+      border-radius: 12px;
+      background: #fffdf3;
+      box-shadow: 4px 4px 0 rgba(16,43,63,.72);
+      padding: 9px;
+      text-align: center;
+    }
+
+    .gacha-result.new {
+      background: #fff1b8;
+    }
+
+    .gacha-info-modal {
+      position: fixed;
+      inset: max(14px, 4vh) max(14px, 5vw);
+      z-index: 24;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      padding: 16px;
+      border: 4px solid var(--navy);
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 248, 223, .98), rgba(255, 224, 129, .98)),
+        var(--paper);
+      box-shadow: 12px 12px 0 rgba(16, 43, 63, .42);
+    }
+
+    .gacha-info-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid var(--navy);
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 2px dashed rgba(16, 43, 63, 0.25);
+    }
+
+    .two-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @keyframes cannonPulse {
+      from { filter: brightness(1); transform: rotate(-1deg); }
+      to { filter: brightness(1.14); transform: rotate(1deg) scale(1.025); }
+    }
+
+    @media (max-width: 780px) {
+      .menu-shell {
+        width: calc(100vw - 12px);
+        max-height: calc(100vh - 12px);
+      }
+
+      #baseScreen .menu-shell {
+        height: calc(100vh - 12px);
+      }
+
+      .menu-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .resource-strip {
+        justify-content: flex-start;
+      }
+
+      .menu-body {
+        grid-template-columns: 1fr;
+      }
+
+      .menu-nav {
+        grid-template-columns: repeat(3, 1fr);
+        border-right: 0;
+        border-bottom: 4px solid var(--navy);
+        padding: 8px;
+      }
+
+      .menu-nav button {
+        min-height: 38px;
+        padding: 7px;
+        font-size: 11px;
+        text-align: center;
+      }
+
+      .menu-content {
+        padding: 10px;
+        padding-bottom: 26px;
+      }
+
+      .deck-strip.formation-deck {
+        grid-template-columns: repeat(5, minmax(54px, 1fr));
+      }
+
+      .deck-slot {
+        min-width: 0;
+        min-height: 66px;
+        padding: 6px 4px;
+      }
+
+      .home-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .gacha-machine {
+        grid-template-columns: 1fr;
+      }
+
+      .home-hero {
+        min-height: 245px;
+      }
+
+      .hero-logo {
+        font-size: 44px;
+      }
+
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr auto;
+        padding: 8px 9px;
+      }
+
+      .brand {
+        padding: 7px 9px;
+        box-shadow: 3px 3px 0 var(--navy);
+      }
+
+      .brand-main {
+        font-size: 19px;
+      }
+
+      .brand-sub {
+        display: none;
+      }
+
+      .wave-card {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        min-width: 146px;
+        padding: 5px 10px 6px;
+        transform: translateX(-50%);
+      }
+
+      #waveName {
+        font-size: 12px;
+      }
+
+      .round-button {
+        width: 40px;
+        height: 40px;
+      }
+
+      .base-status {
+        top: 62px;
+        width: 37vw;
+        padding: 5px 7px;
+      }
+
+      .base-status.player {
+        left: 8px;
+      }
+
+      .base-status.enemy {
+        right: 8px;
+      }
+
+      .base-row {
+        font-size: 9px;
+      }
+
+      .message {
+        top: 109px;
+      }
+
+      .bottom-panel {
+        grid-template-columns: 92px minmax(0, 1fr) 48px 75px;
+        gap: 5px;
+        padding: 6px 6px 9px;
+      }
+
+      .money-value {
+        font-size: 20px;
+      }
+
+      .upgrade-button {
+        min-height: 43px;
+        font-size: 9px;
+      }
+
+      .unit-bar {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 4px;
+      }
+
+      .unit-button {
+        min-width: 0;
+        min-height: 68px;
+        padding: 4px 2px 3px;
+      }
+
+      .unit-icon {
+        height: 25px;
+        font-size: 22px;
+        line-height: 25px;
+      }
+
+      .unit-sprite {
+        height: 36px;
+        margin-bottom: 3px;
+      }
+
+      .unit-name {
+        font-size: 8px;
+      }
+
+      .unit-cost {
+        font-size: 9px;
+      }
+
+      .unit-key {
+        display: none;
+      }
+
+      .deck-switch-button,
+      .cannon-button {
+        min-height: 68px;
+        padding: 3px;
+        font-size: 8px;
+      }
+
+      .deck-switch-button .switch-mark {
+        font-size: 22px;
+      }
+
+      .cannon-icon {
+        font-size: 22px;
+      }
+
+      .howto {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .wave-label,
+      .base-name {
+        display: none;
+      }
+
+      .wave-card {
+        min-width: 114px;
+      }
+
+      .bottom-panel {
+        grid-template-columns: 78px minmax(0, 1fr) 42px 62px;
+      }
+
+      .economy {
+        gap: 4px;
+      }
+
+      .money-label {
+        font-size: 8px;
+      }
+
+      .unit-icon {
+        font-size: 19px;
+      }
+
+      .unit-name {
+        display: none;
+      }
+
+      .unit-button {
+        min-height: 60px;
+      }
+
+      .deck-switch-button,
+      .cannon-button {
+        min-height: 60px;
+      }
+    }
+
+    @media (max-height: 620px) {
+      .base-status {
+        display: none;
+      }
+
+      .message {
+        top: 65px;
+      }
+
+      .bottom-panel {
+        padding-top: 5px;
+        padding-bottom: 7px;
+      }
+
+      .unit-button,
+      .deck-switch-button,
+      .cannon-button {
+        min-height: 60px;
+      }
+
+      .unit-icon,
+      .cannon-icon {
+        height: 23px;
+        font-size: 20px;
+        line-height: 23px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game" aria-label="横方向のわんこ大戦争ゲーム"></canvas>
+
+  <div class="hud">
+    <div class="topbar">
+      <div class="brand">
+        <span class="brand-main">WANKO WARS</span>
+        <span class="brand-sub">わんこ大戦争</span>
+      </div>
+      <div class="wave-card">
+        <div class="wave-label">NEKO REPORT</div>
+        <div id="waveName">第1波・ネコ小隊</div>
+      </div>
+      <div class="top-actions">
+        <button class="round-button" id="speedButton" aria-label="ゲーム速度を変更">×1</button>
+        <button class="round-button" id="pauseButton" aria-label="一時停止">Ⅱ</button>
+      </div>
+    </div>
+
+    <div class="base-status player">
+      <div class="base-row">
+        <span class="base-name">わんこハウス</span>
+        <span id="playerHpText">5000 / 5000</span>
+      </div>
+      <div class="hp-track"><div class="hp-fill" id="playerHpBar"></div></div>
+    </div>
+
+    <div class="base-status enemy">
+      <div class="base-row">
+        <span id="enemyHpText">6000 / 6000</span>
+        <span class="base-name">ネコ要塞</span>
+      </div>
+      <div class="hp-track"><div class="hp-fill" id="enemyHpBar"></div></div>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <div class="pause-menu hidden" id="pauseMenu" aria-live="polite">
+      <div class="pause-title">PAUSE</div>
+      <button class="menu-action primary" id="resumeButton">戦闘再開</button>
+      <button class="menu-action" id="retreatButton">戦闘から離脱</button>
+    </div>
+
+    <div class="bottom-panel">
+      <div class="economy">
+        <div>
+          <div class="money-label">BONES / ほね</div>
+          <div class="money-value"><span id="money">0</span><span id="moneyMax"> / 1200</span></div>
+        </div>
+        <button class="upgrade-button" id="upgradeButton">
+          ごはんLv.<span id="incomeLevel">1</span><br>
+          <span id="upgradeCost">増量 300</span>
+        </button>
+      </div>
+
+      <div class="unit-bar" id="unitBar"></div>
+
+      <button class="deck-switch-button" id="deckSwitchButton" aria-label="出撃枠を切り替え">
+        <span class="switch-mark">↻</span>
+        <span class="switch-label" id="deckSwitchLabel">表 1-5</span>
+      </button>
+
+      <button class="cannon-button" id="cannonButton" disabled>
+        <span class="cannon-icon">♪</span>
+        <span id="cannonLabel">遠吠え 0%</span>
+        <span class="cannon-meter" id="cannonMeter"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="overlay" id="startScreen">
+    <div class="menu-shell">
+      <div class="home-hero">
+        <div class="eyebrow">ORIGINAL DOG-SIDE LINE DEFENSE</div>
+        <div class="hero-logo">WANKO<br><span>WARS</span></div>
+        <p class="lead">
+          わんこ軍を育成し、編成を組み、アイテムを選んでネコ要塞へ挑め。
+          戦闘は横ライン自動バトル。勝つには壁、遠距離火力、タイミングが必要です。
+        </p>
+        <div class="hero-crowd" id="titleCrowd"></div>
+      </div>
+      <div style="padding:16px;background:rgba(255,248,223,.92);border-top:4px solid var(--navy);">
+        <div class="two-buttons">
+          <button class="primary-button" id="startButton">ゲームスタート</button>
+          <button class="primary-button" id="titleOptionsButton" style="background:var(--gold);color:var(--ink);">オプション</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="baseScreen">
+    <div class="menu-shell">
+      <div class="menu-header">
+        <div>
+          <div class="eyebrow">WANKO BASE</div>
+          <div class="menu-title">わんこ基地</div>
+        </div>
+        <div class="resource-strip">
+          <div class="resource-pill">XP <span id="xpValue">0</span></div>
+          <div class="resource-pill">ほね缶 <span id="boneCanValue">0</span></div>
+          <div class="resource-pill">チケット <span id="ticketValue">0</span></div>
+          <div class="resource-pill">統率力 <span id="energyValue">0</span></div>
+        </div>
+      </div>
+      <div class="menu-body">
+        <div class="menu-nav">
+          <button data-menu="homePanel" class="active">わんこ基地</button>
+          <button data-menu="stagePanel">戦闘開始!!</button>
+          <button data-menu="powerPanel">パワーアップ</button>
+          <button data-menu="gachaPanel">ガチャ</button>
+          <button data-menu="formationPanel">キャラクター編成</button>
+          <button data-menu="itemPanel">アイテムショップ</button>
+          <button data-menu="optionPanel">オプション</button>
+        </div>
+        <div class="menu-content">
+          <section id="homePanel" class="menu-panel-content">
+            <div class="home-grid">
+              <div class="home-hero">
+                <div class="eyebrow">TODAY'S ORDER</div>
+                <div class="hero-logo" style="font-size:clamp(34px,6vw,68px);">わんこ<br><span>反撃中</span></div>
+                <p class="lead">ステージをクリアしてXPとほね缶を集め、わんこ軍を強化しましょう。</p>
+                <div class="hero-crowd" id="baseCrowd"></div>
+              </div>
+              <div class="home-actions">
+                <button class="menu-action primary" data-menu-jump="stagePanel">戦闘開始!!</button>
+                <button class="menu-action" data-menu-jump="gachaPanel">ガチャを引く</button>
+                <button class="menu-action" data-menu-jump="powerPanel">パワーアップ</button>
+                <button class="menu-action" data-menu-jump="formationPanel">編成を変える</button>
+                <div class="menu-panel" style="padding:14px;">
+                  <div class="stage-name">現在の編成</div>
+                  <div class="deck-strip" id="homeDeck"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="stagePanel" class="menu-panel-content hidden">
+            <div class="eyebrow">STAGE SELECT</div>
+            <h2>戦闘開始!!</h2>
+            <p class="lead">ステージごとに敵の強さ、報酬、出現順が変わります。</p>
+            <div class="card-grid" id="stageList"></div>
+          </section>
+
+          <section id="powerPanel" class="menu-panel-content hidden">
+            <div class="eyebrow">POWER UP</div>
+            <h2>パワーアップ</h2>
+            <p class="lead">XPを使ってわんこ軍の体力と攻撃力を上げます。</p>
+            <div class="card-grid" id="powerList"></div>
+          </section>
+
+          <section id="gachaPanel" class="menu-panel-content hidden">
+            <div class="eyebrow">GACHA</div>
+            <h2>わんこガチャ</h2>
+            <p class="lead">チケットまたはほね缶で新しいわんこを仲間にできます。被ったキャラはXPに変換されます。</p>
+            <div class="gacha-machine">
+              <div class="gacha-box">
+                <div>
+                  <div class="gacha-drum"></div>
+                  <button class="menu-action primary" id="singleGachaButton" style="margin-top:18px;">1回引く</button>
+                  <button class="menu-action" id="fiveGachaButton" style="margin-top:10px;">5回引く</button>
+                </div>
+              </div>
+              <div class="menu-panel" style="padding:14px;">
+                <div class="stage-name">ガチャ結果</div>
+                <p class="item-meta">排出キャラ一覧はインフォメーションから確認できます。</p>
+                <button class="small-action" id="gachaInfoButton">インフォメーション</button>
+                <div class="gacha-results" id="gachaResults"></div>
+              </div>
+            </div>
+            <div class="gacha-info-modal hidden" id="gachaInfoModal">
+              <div class="gacha-info-header">
+                <div>
+                  <div class="eyebrow">INFORMATION</div>
+                  <div class="stage-name">排出キャラ一覧</div>
+                </div>
+                <button class="small-action" id="closeGachaInfoButton" style="width:auto;margin-top:0;">閉じる</button>
+              </div>
+              <div class="gacha-results scroll-list" id="gachaInfoList"></div>
+            </div>
+          </section>
+
+          <section id="formationPanel" class="menu-panel-content hidden">
+            <div class="eyebrow">FORMATION</div>
+            <h2>キャラクター編成</h2>
+            <p class="lead">戦闘に出すわんこを選びます。最低3体、最大10体まで。戦闘中は回転ボタンで表5体と裏5体を切り替えます。</p>
+            <div class="deck-strip formation-deck" id="deckList"></div>
+            <div class="card-grid" id="formationList"></div>
+          </section>
+
+          <section id="itemPanel" class="menu-panel-content hidden">
+            <div class="eyebrow">ITEM SHOP</div>
+            <h2>アイテムショップ</h2>
+            <p class="lead">ほね缶で購入し、次の戦闘に持ち込むアイテムを選べます。</p>
+            <div class="card-grid" id="itemList"></div>
+          </section>
+
+          <section id="optionPanel" class="menu-panel-content hidden">
+            <div class="eyebrow">OPTIONS</div>
+            <h2>オプション</h2>
+            <div class="card-grid" id="optionList"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="resultScreen">
+    <div class="card">
+      <div class="eyebrow" id="resultEyebrow">WANKO HOUSE SAFE</div>
+      <h2 id="resultTitle">防衛成功</h2>
+      <p class="lead" id="resultText">ネコ要塞を落とし、わんこハウスを守り抜きました。</p>
+      <div class="result-stats">
+        <div class="result-stat"><span>TIME</span><strong id="resultTime">0:00</strong></div>
+        <div class="result-stat"><span>DEPLOYED</span><strong id="resultDeployed">0</strong></div>
+        <div class="result-stat"><span>DEFEATED</span><strong id="resultDefeated">0</strong></div>
+      </div>
+      <div class="two-buttons">
+        <button class="primary-button" id="restartButton">もう一度戦う</button>
+        <button class="primary-button" id="resultHomeButton" style="background:var(--gold);color:var(--ink);">基地へ戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const WORLD = { width: 1600, height: 900, groundY: 630 };
+    const PLAYER_BASE_X = 118;
+    const ENEMY_BASE_X = 1482;
+    const UNIT_LIMIT = 42;
+    const ui = {
+      money: document.getElementById("money"),
+      moneyMax: document.getElementById("moneyMax"),
+      incomeLevel: document.getElementById("incomeLevel"),
+      upgradeCost: document.getElementById("upgradeCost"),
+      upgradeButton: document.getElementById("upgradeButton"),
+      unitBar: document.getElementById("unitBar"),
+      cannonButton: document.getElementById("cannonButton"),
+      cannonLabel: document.getElementById("cannonLabel"),
+      cannonMeter: document.getElementById("cannonMeter"),
+      playerHpText: document.getElementById("playerHpText"),
+      playerHpBar: document.getElementById("playerHpBar"),
+      enemyHpText: document.getElementById("enemyHpText"),
+      enemyHpBar: document.getElementById("enemyHpBar"),
+      waveName: document.getElementById("waveName"),
+      message: document.getElementById("message"),
+      speedButton: document.getElementById("speedButton"),
+      pauseButton: document.getElementById("pauseButton"),
+      pauseMenu: document.getElementById("pauseMenu"),
+      resumeButton: document.getElementById("resumeButton"),
+      retreatButton: document.getElementById("retreatButton"),
+      deckSwitchButton: document.getElementById("deckSwitchButton"),
+      deckSwitchLabel: document.getElementById("deckSwitchLabel"),
+      startScreen: document.getElementById("startScreen"),
+      resultScreen: document.getElementById("resultScreen"),
+      resultEyebrow: document.getElementById("resultEyebrow"),
+      resultTitle: document.getElementById("resultTitle"),
+      resultText: document.getElementById("resultText"),
+      resultTime: document.getElementById("resultTime"),
+      resultDeployed: document.getElementById("resultDeployed"),
+      resultDefeated: document.getElementById("resultDefeated"),
+      resultHomeButton: document.getElementById("resultHomeButton"),
+      baseScreen: document.getElementById("baseScreen"),
+      xpValue: document.getElementById("xpValue"),
+      boneCanValue: document.getElementById("boneCanValue"),
+      ticketValue: document.getElementById("ticketValue"),
+      energyValue: document.getElementById("energyValue"),
+      stageList: document.getElementById("stageList"),
+      powerList: document.getElementById("powerList"),
+      formationList: document.getElementById("formationList"),
+      deckList: document.getElementById("deckList"),
+      homeDeck: document.getElementById("homeDeck"),
+      gachaResults: document.getElementById("gachaResults"),
+      gachaInfoButton: document.getElementById("gachaInfoButton"),
+      closeGachaInfoButton: document.getElementById("closeGachaInfoButton"),
+      gachaInfoModal: document.getElementById("gachaInfoModal"),
+      gachaInfoList: document.getElementById("gachaInfoList"),
+      singleGachaButton: document.getElementById("singleGachaButton"),
+      fiveGachaButton: document.getElementById("fiveGachaButton"),
+      itemList: document.getElementById("itemList"),
+      optionList: document.getElementById("optionList"),
+      titleCrowd: document.getElementById("titleCrowd"),
+      baseCrowd: document.getElementById("baseCrowd")
+    };
+
+    const allyTypes = [
+      {
+        id: "wanko", name: "わんこ", icon: "犬", cost: 60, cooldown: 1.05,
+        hp: 160, damage: 14, speed: 55, range: 38, attackRate: 0.68,
+        size: 25, color: "#f4e2b8", accent: "#8b5a3b", role: "wall", rarity: "基本"
+      },
+      {
+        id: "nyoro", name: "にょろ犬", icon: "蛇", cost: 110, cooldown: 1.8,
+        hp: 120, damage: 32, speed: 42, range: 140, attackRate: 1.0,
+        size: 24, color: "#d7c995", accent: "#5b8f6d", role: "ranged", rarity: "基本"
+      },
+      {
+        id: "theguy", name: "例の犬", icon: "人", cost: 150, cooldown: 2.25,
+        hp: 220, damage: 35, speed: 47, range: 42, attackRate: 0.9,
+        size: 27, color: "#ead3b0", accent: "#5b4a42", role: "wall", rarity: "基本"
+      },
+      {
+        id: "wanic", name: "ワニワン", icon: "速", cost: 210, cooldown: 2.8,
+        hp: 160, damage: 32, speed: 92, range: 38, attackRate: 0.44,
+        size: 24, color: "#88b86f", accent: "#173042", role: "rush", rarity: "基本"
+      },
+      {
+        id: "goriwan", name: "ゴリワン", icon: "力", cost: 360, cooldown: 4.3,
+        hp: 620, damage: 80, speed: 42, range: 48, attackRate: 0.68,
+        size: 34, color: "#9a7a63", accent: "#4a3030", role: "bruiser", rarity: "基本"
+      },
+      {
+        id: "kabawan", name: "カバワン", icon: "盾", cost: 430, cooldown: 5.8,
+        hp: 1050, damage: 38, speed: 22, range: 52, attackRate: 1.18,
+        size: 39, color: "#8bc5c2", accent: "#315c67", role: "tank", rarity: "基本"
+      },
+      {
+        id: "akabuhi", name: "赤ブヒ", icon: "赤", cost: 650, cooldown: 8.4,
+        hp: 620, damage: 155, speed: 35, range: 58, attackRate: 1.32,
+        size: 37, color: "#d96456", accent: "#f3bd4d", role: "captain", splash: 82, rarity: "基本"
+      },
+      {
+        id: "paondog", name: "パオーン犬", icon: "象", cost: 1200, cooldown: 17,
+        hp: 820, damage: 360, speed: 17, range: 315, attackRate: 2.7,
+        size: 48, color: "#8aa7b1", accent: "#173042", role: "gunner", splash: 120, rarity: "基本"
+      },
+      {
+        id: "mamewanko", name: "まめわんこ", icon: "豆", cost: 45, cooldown: 0.72,
+        hp: 95, damage: 9, speed: 72, range: 34, attackRate: 0.45,
+        size: 20, color: "#f7e3ba", accent: "#8b5a3b", role: "wall", rarity: "レア"
+      },
+      {
+        id: "policewanko", name: "ポリス犬", icon: "警", cost: 260, cooldown: 4.4,
+        hp: 300, damage: 72, speed: 48, range: 160, attackRate: 1.15,
+        size: 29, color: "#d9f3ff", accent: "#2c8da3", role: "ranged", rarity: "レア"
+      },
+      {
+        id: "ninjawanko", name: "忍ワン", icon: "忍", cost: 330, cooldown: 4.0,
+        hp: 260, damage: 44, speed: 128, range: 42, attackRate: 0.36,
+        size: 25, color: "#d9d9d9", accent: "#173042", role: "rush", rarity: "レア"
+      },
+      {
+        id: "chefwan", name: "シェフ犬", icon: "飯", cost: 390, cooldown: 5.5,
+        hp: 420, damage: 42, speed: 31, range: 74, attackRate: 0.95,
+        size: 31, color: "#fff4d0", accent: "#ef6f5e", role: "bruiser", splash: 70, rarity: "レア"
+      },
+      {
+        id: "guardwan", name: "番犬ガード", icon: "守", cost: 520, cooldown: 7.0,
+        hp: 1500, damage: 30, speed: 18, range: 46, attackRate: 1.1,
+        size: 41, color: "#8bc5c2", accent: "#315c67", role: "tank", rarity: "激レア"
+      },
+      {
+        id: "samuraiwan", name: "侍ワン", icon: "侍", cost: 760, cooldown: 9.0,
+        hp: 760, damage: 230, speed: 38, range: 66, attackRate: 1.05,
+        size: 38, color: "#d96456", accent: "#f3bd4d", role: "captain", splash: 95, rarity: "激レア"
+      },
+      {
+        id: "dragonwan", name: "ドラゴン犬", icon: "竜", cost: 980, cooldown: 12.5,
+        hp: 620, damage: 300, speed: 26, range: 255, attackRate: 2.1,
+        size: 42, color: "#d7c995", accent: "#5b8f6d", role: "gunner", splash: 80, rarity: "激レア"
+      },
+      {
+        id: "rocketwan", name: "ロケット犬", icon: "砲", cost: 1380, cooldown: 18,
+        hp: 720, damage: 520, speed: 20, range: 360, attackRate: 3.0,
+        size: 45, color: "#8aa7b1", accent: "#173042", role: "gunner", splash: 150, rarity: "超激レア"
+      },
+      {
+        id: "kingwan", name: "キングワン", icon: "王", cost: 1500, cooldown: 20,
+        hp: 1600, damage: 330, speed: 24, range: 120, attackRate: 1.8,
+        size: 48, color: "#9a7a63", accent: "#f3bd4d", role: "captain", splash: 140, rarity: "超激レア"
+      },
+      {
+        id: "angelwan", name: "天使ワン", icon: "天", cost: 720, cooldown: 10,
+        hp: 520, damage: 95, speed: 45, range: 210, attackRate: 1.35,
+        size: 32, color: "#ffe19a", accent: "#2c8da3", role: "ranged", splash: 60, rarity: "激レア"
+      },
+      {
+        id: "sumowan", name: "スモウ犬", icon: "相", cost: 620, cooldown: 8.5,
+        hp: 1300, damage: 82, speed: 20, range: 55, attackRate: 0.82,
+        size: 42, color: "#ead3b0", accent: "#4a3030", role: "tank", rarity: "激レア"
+      },
+      {
+        id: "goldwan", name: "黄金ワン", icon: "金", cost: 900, cooldown: 11,
+        hp: 680, damage: 120, speed: 60, range: 90, attackRate: 0.72,
+        size: 36, color: "#f3bd4d", accent: "#ef6f5e", role: "bruiser", splash: 85, rarity: "超激レア"
+      }
+    ];
+
+    const enemyTypes = {
+      smallcat: {
+        id: "smallcat", name: "にゃん兵", hp: 95, damage: 13, speed: 45,
+        range: 38, attackRate: 0.82, size: 23, reward: 32,
+        color: "#fff7df", accent: "#2c8da3", role: "scout"
+      },
+      wallcat: {
+        id: "wallcat", name: "タンクにゃん", hp: 260, damage: 15, speed: 24,
+        range: 42, attackRate: 1.1, size: 31, reward: 55,
+        color: "#e8e2c7", accent: "#173042", role: "brute"
+      },
+      battlecat: {
+        id: "battlecat", name: "勇者にゃん", hp: 210, damage: 38, speed: 39,
+        range: 50, attackRate: 0.9, size: 29, reward: 72,
+        color: "#f4d1bf", accent: "#cf4f52", role: "raider"
+      },
+      legcat: {
+        id: "legcat", name: "脚長にゃん", hp: 150, damage: 36, speed: 30,
+        range: 185, attackRate: 1.48, size: 28, reward: 86,
+        color: "#f8f1dd", accent: "#9157a8", role: "slinger"
+      },
+      rushcat: {
+        id: "rushcat", name: "速足にゃん", hp: 120, damage: 20, speed: 92,
+        range: 38, attackRate: 0.5, size: 25, reward: 70,
+        color: "#fff1b8", accent: "#d5952f", role: "raider"
+      },
+      birdcat: {
+        id: "birdcat", name: "空飛びにゃん", hp: 190, damage: 31, speed: 52,
+        range: 85, attackRate: 1.05, size: 27, reward: 92,
+        color: "#ffe19a", accent: "#e87b52", role: "slinger", splash: 55
+      },
+      lizardcat: {
+        id: "lizardcat", name: "ドラゴンにゃん", hp: 280, damage: 70, speed: 20,
+        range: 265, attackRate: 2.0, size: 35, reward: 150,
+        color: "#d8ead0", accent: "#4c7a5e", role: "gunner"
+      },
+      giantcat: {
+        id: "giantcat", name: "巨神にゃん", hp: 2400, damage: 118, speed: 14,
+        range: 112, attackRate: 2.05, size: 58, reward: 780,
+        color: "#efe4d5", accent: "#ef6f5e", role: "boss", splash: 110
+      }
+    };
+
+    const baseWaveSchedule = [
+      { time: 1.2, type: "smallcat", count: 3, gap: 1.0 },
+      { time: 6, type: "wallcat", count: 2, gap: 1.4 },
+      { time: 10, type: "smallcat", count: 5, gap: 0.65 },
+      { time: 15, type: "battlecat", count: 2, gap: 1.2 },
+      { time: 21, type: "legcat", count: 2, gap: 1.5 },
+      { time: 26, type: "rushcat", count: 3, gap: 0.65 },
+      { time: 31, type: "birdcat", count: 3, gap: 0.85 },
+      { time: 36, type: "wallcat", count: 3, gap: 1.0 },
+      { time: 41, type: "lizardcat", count: 1, gap: 1 },
+      { time: 42, type: "smallcat", count: 5, gap: 0.5 },
+      { time: 49, type: "battlecat", count: 5, gap: 0.65 },
+      { time: 56, type: "giantcat", count: 1, gap: 1 },
+      { time: 59, type: "legcat", count: 3, gap: 0.8 },
+      { time: 63, type: "rushcat", count: 4, gap: 0.5 },
+      { time: 67, type: "lizardcat", count: 2, gap: 1.6 },
+      { time: 72, type: "birdcat", count: 4, gap: 0.7 }
+    ];
+
+    const stageDefinitions = [
+      {
+        id: "meadow",
+        name: "わんこ平原",
+        area: "第1章",
+        description: "ネコ小隊の基礎部隊が攻めてくる練習ステージ。",
+        energy: 10,
+        enemyBaseHp: 2600,
+        rewardXp: 260,
+        rewardBones: 45,
+        schedule: baseWaveSchedule.slice(0, 9)
+      },
+      {
+        id: "alley",
+        name: "ネコ路地",
+        area: "第1章",
+        description: "遠距離の脚長にゃんと速足にゃんが前線を乱す。",
+        energy: 18,
+        enemyBaseHp: 4200,
+        rewardXp: 520,
+        rewardBones: 80,
+        schedule: baseWaveSchedule
+      },
+      {
+        id: "citadel",
+        name: "巨神ネコ要塞",
+        area: "挑戦",
+        description: "巨神にゃんを中心にした長期戦。遠吠えと大型犬を温存しよう。",
+        energy: 28,
+        enemyBaseHp: 5600,
+        rewardXp: 980,
+        rewardBones: 150,
+        schedule: [
+          ...baseWaveSchedule,
+          { time: 80, type: "wallcat", count: 4, gap: 0.8 },
+          { time: 86, type: "lizardcat", count: 2, gap: 1.1 },
+          { time: 92, type: "giantcat", count: 1, gap: 1 }
+        ]
+      }
+    ];
+
+    const itemDefinitions = [
+      {
+        id: "boneBoost",
+        name: "ほね袋",
+        price: 90,
+        description: "次の戦闘開始時のほねを+400する。"
+      },
+      {
+        id: "howlCharge",
+        name: "遠吠え笛",
+        price: 130,
+        description: "次の戦闘開始時、遠吠えゲージを75%まで溜める。"
+      },
+      {
+        id: "guardCharm",
+        name: "犬小屋お守り",
+        price: 160,
+        description: "次の戦闘だけ、わんこハウスHPを+1000する。"
+      }
+    ];
+
+    const spritePaths = {
+      wanko: "assets/wanko_wanko.png",
+      nyoro: "assets/wanko_nyoro.png",
+      theguy: "assets/wanko_theguy.png",
+      wanic: "assets/wanko_wanic.png",
+      goriwan: "assets/wanko_goriwan.png",
+      kabawan: "assets/wanko_kabawan.png",
+      akabuhi: "assets/wanko_akabuhi.png",
+      paondog: "assets/wanko_paondog.png",
+      mamewanko: "assets/wanko_wanko.png",
+      policewanko: "assets/wanko_theguy.png",
+      ninjawanko: "assets/wanko_wanic.png",
+      chefwan: "assets/wanko_kabawan.png",
+      guardwan: "assets/wanko_kabawan.png",
+      samuraiwan: "assets/wanko_akabuhi.png",
+      dragonwan: "assets/wanko_nyoro.png",
+      rocketwan: "assets/wanko_paondog.png",
+      kingwan: "assets/wanko_goriwan.png",
+      angelwan: "assets/neko_birdcat.png",
+      sumowan: "assets/wanko_goriwan.png",
+      goldwan: "assets/wanko_akabuhi.png",
+      smallcat: "assets/neko_smallcat.png",
+      wallcat: "assets/neko_wallcat.png",
+      battlecat: "assets/neko_battlecat.png",
+      legcat: "assets/neko_legcat.png",
+      rushcat: "assets/neko_rushcat.png",
+      birdcat: "assets/neko_birdcat.png",
+      lizardcat: "assets/neko_lizardcat.png",
+      giantcat: "assets/neko_giantcat.png"
+    };
+
+    const starterUnitIds = ["wanko", "nyoro", "theguy", "wanic", "goriwan", "kabawan", "akabuhi", "paondog"];
+    const gachaPool = [
+      ["wanko", 9], ["nyoro", 8], ["theguy", 8], ["wanic", 8], ["goriwan", 6], ["kabawan", 6],
+      ["mamewanko", 10], ["policewanko", 8], ["ninjawanko", 8], ["chefwan", 7],
+      ["guardwan", 4], ["samuraiwan", 4], ["dragonwan", 4], ["angelwan", 4], ["sumowan", 4],
+      ["rocketwan", 1.5], ["kingwan", 1.5], ["goldwan", 1.2]
+    ];
+
+    const spriteImages = Object.fromEntries(Object.entries(spritePaths).map(([id, path]) => {
+      const image = new Image();
+      image.src = path;
+      return [id, image];
+    }));
+
+    const SAVE_KEY = "wankoWarsSaveV1";
+    const MAX_UNIT_LEVEL = 10;
+    const DECK_LIMIT = 10;
+    const BATTLE_ROW_SIZE = 5;
+
+    function createDefaultSave() {
+      return {
+        xp: 1200,
+        boneCans: 360,
+        tickets: 3,
+        energy: 60,
+        unitLevels: Object.fromEntries(allyTypes.map(type => [type.id, 1])),
+        ownedUnits: Object.fromEntries(allyTypes.map(type => [type.id, starterUnitIds.includes(type.id)])),
+        deck: starterUnitIds.slice(),
+        clearedStages: {},
+        items: Object.fromEntries(itemDefinitions.map(item => [item.id, item.id === "boneBoost" ? 1 : 0])),
+        equippedItems: Object.fromEntries(itemDefinitions.map(item => [item.id, false])),
+        options: { se: true, autoSpeed: false }
+      };
+    }
+
+    function loadSave() {
+      try {
+        const loaded = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+        const fallback = createDefaultSave();
+        if (!loaded || typeof loaded !== "object") return fallback;
+        return {
+          ...fallback,
+          ...loaded,
+          unitLevels: { ...fallback.unitLevels, ...(loaded.unitLevels || {}) },
+          ownedUnits: { ...fallback.ownedUnits, ...(loaded.ownedUnits || {}) },
+          items: { ...fallback.items, ...(loaded.items || {}) },
+          equippedItems: { ...fallback.equippedItems, ...(loaded.equippedItems || {}) },
+          clearedStages: { ...fallback.clearedStages, ...(loaded.clearedStages || {}) },
+          options: { ...fallback.options, ...(loaded.options || {}) },
+          tickets: Number.isFinite(loaded.tickets) ? loaded.tickets : fallback.tickets,
+          deck: Array.isArray(loaded.deck) && loaded.deck.length ? loaded.deck.filter(id => allyTypes.some(type => type.id === id)).slice(0, DECK_LIMIT) : fallback.deck
+        };
+      } catch (_) {
+        return createDefaultSave();
+      }
+    }
+
+    function saveGame() {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+      renderResourceStrip();
+    }
+
+    let saveData = loadSave();
+    let currentStage = stageDefinitions[0];
+    let activeBattleItems = {};
+
+    const units = [];
+    const particles = [];
+    const projectiles = [];
+    const floatingTexts = [];
+    const clouds = [];
+    const spawnQueue = [];
+    const cooldowns = Object.create(null);
+    const base = {
+      player: { hp: 5000, maxHp: 5000, flash: 0 },
+      enemy: { hp: 4200, maxHp: 4200, flash: 0 }
+    };
+
+    let running = false;
+    let paused = false;
+    let ended = false;
+    let elapsed = 0;
+    let gameSpeed = 1;
+    let money = 180;
+    let moneyMax = 1200;
+    let incomeLevel = 1;
+    let cannonCharge = 0;
+    let scheduleIndex = 0;
+    let lastTime = performance.now();
+    let pixelRatio = 1;
+    let scale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    let messageTimer = 0;
+    let cameraShake = 0;
+    let nextAmbientSpawn = 73;
+    let ambientSpawnsRemaining = 6;
+    let audioContext = null;
+    let stats = { deployed: 0, defeated: 0 };
+    let battleDeckPage = 0;
+
+    function getDeckTypes() {
+      const deck = saveData.deck.filter(id => allyTypes.some(type => type.id === id) && saveData.ownedUnits[id]);
+      if (deck.length < 3) {
+        saveData.deck = allyTypes.filter(type => saveData.ownedUnits[type.id]).slice(0, 3).map(type => type.id);
+        saveGame();
+      }
+      saveData.deck = deck.length >= 3 ? deck.slice(0, DECK_LIMIT) : saveData.deck;
+      return saveData.deck.map(id => allyTypes.find(type => type.id === id)).filter(Boolean);
+    }
+
+    function getBattleDeckTypes() {
+      const start = battleDeckPage * BATTLE_ROW_SIZE;
+      return getDeckTypes().slice(start, start + BATTLE_ROW_SIZE);
+    }
+
+    function getEffectiveAllyType(typeId) {
+      const baseType = allyTypes.find(type => type.id === typeId);
+      const level = saveData.unitLevels[typeId] || 1;
+      const statScale = 1 + (level - 1) * 0.12;
+      return {
+        ...baseType,
+        hp: Math.round(baseType.hp * statScale),
+        damage: Math.round(baseType.damage * statScale),
+        level
+      };
+    }
+
+    function getUpgradePrice(typeId) {
+      const level = saveData.unitLevels[typeId] || 1;
+      return 160 + level * 120 + Math.floor(level * level * 18);
+    }
+
+    function setScreen(target) {
+      [ui.startScreen, ui.baseScreen, ui.resultScreen].forEach(screen => screen.classList.add("hidden"));
+      if (target) target.classList.remove("hidden");
+      document.querySelector(".hud").classList.toggle("menu-hidden", target !== null && target !== ui.resultScreen);
+    }
+
+    function showBaseScreen(panel = "homePanel") {
+      running = false;
+      paused = false;
+      ended = false;
+      ui.pauseMenu.classList.add("hidden");
+      setScreen(ui.baseScreen);
+      switchMenuPanel(panel);
+      renderAllMenus();
+    }
+
+    function switchMenuPanel(panelId) {
+      ui.gachaInfoModal.classList.add("hidden");
+      document.querySelectorAll(".menu-panel-content").forEach(panel => {
+        panel.classList.toggle("hidden", panel.id !== panelId);
+      });
+      document.querySelectorAll("[data-menu]").forEach(button => {
+        button.classList.toggle("active", button.dataset.menu === panelId);
+      });
+    }
+
+    function renderAllMenus() {
+      renderResourceStrip();
+      renderHomeDeck();
+      renderStageList();
+      renderPowerList();
+      renderGachaPanel();
+      renderFormationList();
+      renderItemList();
+      renderOptions();
+    }
+
+    function renderResourceStrip() {
+      ui.xpValue.textContent = Math.floor(saveData.xp).toLocaleString("ja-JP");
+      ui.boneCanValue.textContent = Math.floor(saveData.boneCans).toLocaleString("ja-JP");
+      ui.ticketValue.textContent = Math.floor(saveData.tickets).toLocaleString("ja-JP");
+      ui.energyValue.textContent = `${saveData.energy}/60`;
+    }
+
+    function renderHomeDeck() {
+      ui.homeDeck.innerHTML = "";
+      getDeckTypes().forEach(type => {
+        const slot = document.createElement("div");
+        slot.className = "deck-slot";
+        slot.textContent = `${type.icon} ${type.name}`;
+        ui.homeDeck.appendChild(slot);
+      });
+    }
+
+    function renderStageList() {
+      ui.stageList.innerHTML = "";
+      stageDefinitions.forEach(stage => {
+        const cleared = Boolean(saveData.clearedStages[stage.id]);
+        const card = document.createElement("div");
+        card.className = `stage-card${cleared ? " cleared" : ""}`;
+        card.innerHTML = `
+          <div class="stage-meta">${stage.area}${cleared ? " / CLEAR" : ""}</div>
+          <div class="stage-name">${stage.name}</div>
+          <p class="stage-meta">${stage.description}</p>
+          <div class="stage-meta">統率力 ${stage.energy} / 敵拠点HP ${stage.enemyBaseHp.toLocaleString("ja-JP")}</div>
+          <div class="stage-meta">報酬 XP ${stage.rewardXp} / ほね缶 ${stage.rewardBones}</div>
+          <button class="small-action" data-stage="${stage.id}" ${saveData.energy < stage.energy ? "disabled" : ""}>出陣する</button>
+        `;
+        ui.stageList.appendChild(card);
+      });
+      ui.stageList.querySelectorAll("[data-stage]").forEach(button => {
+        button.addEventListener("click", () => startStage(button.dataset.stage));
+      });
+    }
+
+    function renderPowerList() {
+      ui.powerList.innerHTML = "";
+      allyTypes.forEach(type => {
+        const owned = Boolean(saveData.ownedUnits[type.id]);
+        const level = saveData.unitLevels[type.id] || 1;
+        const price = getUpgradePrice(type.id);
+        const maxed = level >= MAX_UNIT_LEVEL;
+        const card = document.createElement("div");
+        card.className = `unit-card${owned ? "" : " locked"}`;
+        card.innerHTML = `
+          <div class="unit-card-name">${type.icon} ${type.name}<span class="rarity-badge rarity-${type.rarity}">${type.rarity}</span></div>
+          <div class="unit-meta">${owned ? `Lv.${level}` : "未所持"} / 役割: ${describeRole(type.role)}</div>
+          <div class="sprite-preview"><img src="${spritePaths[type.id]}" alt="${type.name}"></div>
+          <div class="unit-meta">次の強化: 体力・攻撃力 +12%</div>
+          <button class="small-action" data-upgrade="${type.id}" ${!owned || maxed || saveData.xp < price ? "disabled" : ""}>${!owned ? "ガチャで解放" : maxed ? "最大Lv" : `XP ${price}で強化`}</button>
+        `;
+        ui.powerList.appendChild(card);
+      });
+      ui.powerList.querySelectorAll("[data-upgrade]").forEach(button => {
+        button.addEventListener("click", () => upgradeUnit(button.dataset.upgrade));
+      });
+    }
+
+    function createGachaResultCard(result) {
+      const type = result.type;
+      const card = document.createElement("div");
+      card.className = `gacha-result${result.isNew ? " new" : ""}`;
+      card.innerHTML = `
+        <div class="unit-card-name">${type.icon} ${type.name}</div>
+        <div><span class="rarity-badge rarity-${type.rarity}">${type.rarity}</span></div>
+        <div class="sprite-preview"><img src="${spritePaths[type.id]}" alt="${type.name}"></div>
+        <div class="item-meta">${result.preview ? `Cost ${type.cost} / ${describeRole(type.role)}` : result.isNew ? "NEW! 編成可能になりました" : `被り: XP +${result.duplicateXp}`}</div>
+      `;
+      return card;
+    }
+
+    function renderGachaPanel(results = []) {
+      ui.singleGachaButton.disabled = saveData.tickets <= 0 && saveData.boneCans < 150;
+      ui.singleGachaButton.textContent = saveData.tickets > 0 ? "1回引く（チケット1枚）" : "1回引く（ほね缶150）";
+      ui.fiveGachaButton.disabled = saveData.boneCans < 700;
+      ui.fiveGachaButton.textContent = "5回引く（ほね缶700）";
+
+      ui.gachaResults.innerHTML = "";
+      if (!results.length) {
+        const empty = document.createElement("div");
+        empty.className = "gacha-result";
+        empty.innerHTML = `
+          <div class="unit-card-name">結果待ち</div>
+          <div class="item-meta">ガチャを引くと、ここに獲得キャラが表示されます。</div>
+        `;
+        ui.gachaResults.appendChild(empty);
+        return;
+      }
+      results.forEach(result => ui.gachaResults.appendChild(createGachaResultCard(result)));
+    }
+
+    function renderGachaInfoList() {
+      ui.gachaInfoList.innerHTML = "";
+      gachaPool.forEach(([id, weight]) => {
+        const type = allyTypes.find(unit => unit.id === id);
+        if (!type) return;
+        ui.gachaInfoList.appendChild(createGachaResultCard({ type, preview: true, weight }));
+      });
+    }
+
+    function pullGacha(count) {
+      if (count === 1) {
+        if (saveData.tickets > 0) saveData.tickets--;
+        else if (saveData.boneCans >= 150) saveData.boneCans -= 150;
+        else return;
+      } else {
+        if (saveData.boneCans < 700) return;
+        saveData.boneCans -= 700;
+      }
+
+      const results = [];
+      for (let i = 0; i < count; i++) {
+        const type = rollGachaUnit();
+        const alreadyOwned = Boolean(saveData.ownedUnits[type.id]);
+        const duplicateXp = getDuplicateXp(type);
+        if (alreadyOwned) {
+          saveData.xp += duplicateXp;
+        } else {
+          saveData.ownedUnits[type.id] = true;
+          saveData.unitLevels[type.id] ||= 1;
+        }
+        results.push({ type, isNew: !alreadyOwned, duplicateXp });
+      }
+      saveGame();
+      renderGachaPanel(results);
+      renderPowerList();
+      renderFormationList();
+      renderHomeDeck();
+      tone(560, 0.12, "sine", 0.04);
+      setTimeout(() => tone(760, 0.12, "sine", 0.035), 90);
+    }
+
+    function rollGachaUnit() {
+      const total = gachaPool.reduce((sum, [, weight]) => sum + weight, 0);
+      let roll = Math.random() * total;
+      for (const [id, weight] of gachaPool) {
+        roll -= weight;
+        if (roll <= 0) return allyTypes.find(type => type.id === id);
+      }
+      return allyTypes.find(type => type.id === gachaPool[gachaPool.length - 1][0]);
+    }
+
+    function getDuplicateXp(type) {
+      return {
+        "基本": 80,
+        "レア": 180,
+        "激レア": 420,
+        "超激レア": 1200
+      }[type.rarity] || 100;
+    }
+
+    function renderFormationList() {
+      ui.deckList.innerHTML = "";
+      const deckTypes = getDeckTypes();
+      for (let slotIndex = 0; slotIndex < DECK_LIMIT; slotIndex++) {
+        const type = deckTypes[slotIndex];
+        const slot = document.createElement("div");
+        slot.className = `deck-slot${type ? "" : " empty"}`;
+        slot.innerHTML = type ? `
+          <span class="deck-slot-number">${slotIndex + 1}</span>
+          <img src="${spritePaths[type.id]}" alt="${type.name}">
+          <div>${type.name}</div>
+          <div class="unit-cost">${type.cost}</div>
+        ` : `
+          <span class="deck-slot-number">${slotIndex + 1}</span>
+          空き
+        `;
+        ui.deckList.appendChild(slot);
+      }
+
+      ui.formationList.innerHTML = "";
+      allyTypes.forEach(type => {
+        const owned = Boolean(saveData.ownedUnits[type.id]);
+        const inDeck = saveData.deck.includes(type.id);
+        const fullDeck = saveData.deck.length >= DECK_LIMIT;
+        const card = document.createElement("div");
+        card.className = `unit-card${inDeck ? " in-deck" : ""}${owned ? "" : " locked"}`;
+        card.innerHTML = `
+          <div class="unit-card-name">${type.icon} ${type.name}<span class="rarity-badge rarity-${type.rarity}">${type.rarity}</span></div>
+          <div class="unit-meta">${owned ? `Lv.${saveData.unitLevels[type.id] || 1}` : "未所持"} / Cost ${type.cost}</div>
+          <div class="sprite-preview"><img src="${spritePaths[type.id]}" alt="${type.name}"></div>
+          <button class="small-action" data-deck-toggle="${type.id}" ${owned ? "" : "disabled"}>${owned ? (inDeck ? "編成から外す" : fullDeck ? "10枠目と入替" : "編成に入れる") : "ガチャで解放"}</button>
+        `;
+        ui.formationList.appendChild(card);
+      });
+      ui.formationList.querySelectorAll("[data-deck-toggle]").forEach(button => {
+        button.addEventListener("click", () => toggleDeckUnit(button.dataset.deckToggle));
+      });
+    }
+
+    function renderItemList() {
+      ui.itemList.innerHTML = "";
+      itemDefinitions.forEach(item => {
+        const count = saveData.items[item.id] || 0;
+        const equipped = Boolean(saveData.equippedItems[item.id]);
+        const card = document.createElement("div");
+        card.className = "item-card";
+        card.innerHTML = `
+          <div class="item-name">${item.name}</div>
+          <p class="item-meta">${item.description}</p>
+          <div class="item-meta">所持 ${count} / 価格 ほね缶 ${item.price}</div>
+          <button class="small-action" data-buy-item="${item.id}" ${saveData.boneCans < item.price ? "disabled" : ""}>購入する</button>
+          <button class="small-action" data-equip-item="${item.id}" ${count <= 0 ? "disabled" : ""}>${equipped ? "持ち込み中" : "次の戦闘で使う"}</button>
+        `;
+        ui.itemList.appendChild(card);
+      });
+      ui.itemList.querySelectorAll("[data-buy-item]").forEach(button => {
+        button.addEventListener("click", () => buyItem(button.dataset.buyItem));
+      });
+      ui.itemList.querySelectorAll("[data-equip-item]").forEach(button => {
+        button.addEventListener("click", () => toggleItem(button.dataset.equipItem));
+      });
+    }
+
+    function renderOptions() {
+      ui.optionList.innerHTML = `
+        <div class="option-card">
+          <div class="unit-card-name">サウンド</div>
+          <div class="setting-row"><span>効果音</span><button class="small-action" id="toggleSe">${saveData.options.se ? "ON" : "OFF"}</button></div>
+        </div>
+        <div class="option-card">
+          <div class="unit-card-name">戦闘速度</div>
+          <div class="setting-row"><span>戦闘開始時に2倍速</span><button class="small-action" id="toggleAutoSpeed">${saveData.options.autoSpeed ? "ON" : "OFF"}</button></div>
+        </div>
+        <div class="option-card">
+          <div class="unit-card-name">セーブ</div>
+          <p class="item-meta">進行状況はブラウザのlocalStorageに保存されます。</p>
+          <button class="small-action" id="resetSave">初期化する</button>
+        </div>
+      `;
+      document.getElementById("toggleSe").addEventListener("click", () => {
+        saveData.options.se = !saveData.options.se;
+        saveGame();
+        renderOptions();
+      });
+      document.getElementById("toggleAutoSpeed").addEventListener("click", () => {
+        saveData.options.autoSpeed = !saveData.options.autoSpeed;
+        saveGame();
+        renderOptions();
+      });
+      document.getElementById("resetSave").addEventListener("click", () => {
+        saveData = createDefaultSave();
+        saveGame();
+        renderAllMenus();
+      });
+    }
+
+    function describeRole(role) {
+      return {
+        wall: "安い壁",
+        ranged: "遠距離",
+        rush: "速攻",
+        bruiser: "近接火力",
+        tank: "高体力",
+        captain: "範囲火力",
+        gunner: "長射程",
+        scout: "量産",
+        brute: "壁",
+        raider: "攻撃",
+        slinger: "遠距離",
+        boss: "大型"
+      }[role] || role;
+    }
+
+    function upgradeUnit(typeId) {
+      if (!saveData.ownedUnits[typeId]) return;
+      const level = saveData.unitLevels[typeId] || 1;
+      if (level >= MAX_UNIT_LEVEL) return;
+      const price = getUpgradePrice(typeId);
+      if (saveData.xp < price) return;
+      saveData.xp -= price;
+      saveData.unitLevels[typeId] = level + 1;
+      saveGame();
+      renderPowerList();
+      renderFormationList();
+      renderHomeDeck();
+    }
+
+    function toggleDeckUnit(typeId) {
+      if (!saveData.ownedUnits[typeId]) return;
+      const index = saveData.deck.indexOf(typeId);
+      if (index >= 0) {
+        if (saveData.deck.length <= 3) return;
+        saveData.deck.splice(index, 1);
+      } else if (saveData.deck.length < DECK_LIMIT) {
+        saveData.deck.push(typeId);
+      } else {
+        saveData.deck[saveData.deck.length - 1] = typeId;
+      }
+      saveGame();
+      renderFormationList();
+      renderHomeDeck();
+      buildUnitButtons();
+      refreshUI();
+    }
+
+    function buyItem(itemId) {
+      const item = itemDefinitions.find(entry => entry.id === itemId);
+      if (!item || saveData.boneCans < item.price) return;
+      saveData.boneCans -= item.price;
+      saveData.items[itemId] = (saveData.items[itemId] || 0) + 1;
+      saveGame();
+      renderItemList();
+    }
+
+    function toggleItem(itemId) {
+      if ((saveData.items[itemId] || 0) <= 0) return;
+      saveData.equippedItems[itemId] = !saveData.equippedItems[itemId];
+      saveGame();
+      renderItemList();
+    }
+
+    function startStage(stageId) {
+      const stage = stageDefinitions.find(entry => entry.id === stageId) || stageDefinitions[0];
+      if (saveData.energy < stage.energy) return;
+      saveData.energy -= stage.energy;
+      saveGame();
+      resetGame(stage.id);
+    }
+
+    function consumeEquippedItems() {
+      activeBattleItems = {};
+      itemDefinitions.forEach(item => {
+        if (saveData.equippedItems[item.id] && (saveData.items[item.id] || 0) > 0) {
+          activeBattleItems[item.id] = true;
+          saveData.items[item.id]--;
+          saveData.equippedItems[item.id] = false;
+        }
+      });
+      saveGame();
+    }
+
+    function createCrowd(container) {
+      if (!container || container.children.length) return;
+      for (let i = 0; i < 26; i++) {
+        const face = document.createElement("span");
+        face.className = "crowd-face";
+        face.style.left = `${(i * 46) % 1040}px`;
+        face.style.bottom = `${Math.floor(i / 12) * 34 - 4}px`;
+        face.style.transform = `rotate(${(i % 5 - 2) * 4}deg)`;
+        container.appendChild(face);
+      }
+    }
+
+    function updateDeckSwitchButton() {
+      const showingBack = battleDeckPage === 1;
+      ui.deckSwitchLabel.textContent = showingBack ? "裏 6-10" : "表 1-5";
+      ui.deckSwitchButton.disabled = getDeckTypes().length <= BATTLE_ROW_SIZE || !running || paused;
+    }
+
+    function switchBattleDeck() {
+      if (!running || paused || ended) return;
+      battleDeckPage = battleDeckPage === 0 ? 1 : 0;
+      buildUnitButtons();
+      refreshUI();
+      showMessage(battleDeckPage === 0 ? "表の5体に切替" : "裏の5体に切替", "#2c8da3");
+    }
+
+    function buildUnitButtons() {
+      ui.unitBar.innerHTML = "";
+      const deck = getDeckTypes();
+      if (battleDeckPage * BATTLE_ROW_SIZE >= deck.length) battleDeckPage = 0;
+      const pageUnits = getBattleDeckTypes();
+      for (let index = 0; index < BATTLE_ROW_SIZE; index++) {
+        const type = pageUnits[index];
+        const button = document.createElement("button");
+        button.className = "unit-button";
+        if (type) {
+          button.dataset.unit = type.id;
+          button.innerHTML = `
+            <span class="unit-key">${index + 1}</span>
+            <img class="unit-sprite" src="${spritePaths[type.id]}" alt="">
+            <span class="unit-cost">${type.cost}</span>
+            <span class="cooldown"></span>
+          `;
+          button.addEventListener("click", () => deploy(type.id));
+        } else {
+          button.classList.add("empty");
+          button.disabled = true;
+          button.innerHTML = `
+            <span class="unit-key">${index + 1}</span>
+            <span class="unit-cost">--</span>
+            <span class="cooldown"></span>
+          `;
+        }
+        ui.unitBar.appendChild(button);
+      }
+      updateDeckSwitchButton();
+    }
+
+    function resize() {
+      pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(innerWidth * pixelRatio);
+      canvas.height = Math.floor(innerHeight * pixelRatio);
+      canvas.style.width = innerWidth + "px";
+      canvas.style.height = innerHeight + "px";
+      scale = Math.min(innerWidth / WORLD.width, innerHeight / WORLD.height);
+      offsetX = (innerWidth - WORLD.width * scale) / 2;
+      offsetY = (innerHeight - WORLD.height * scale) / 2;
+    }
+
+    function resetGame(stageId = currentStage.id) {
+      currentStage = stageDefinitions.find(stage => stage.id === stageId) || stageDefinitions[0];
+      consumeEquippedItems();
+      units.length = 0;
+      particles.length = 0;
+      projectiles.length = 0;
+      floatingTexts.length = 0;
+      spawnQueue.length = 0;
+      Object.keys(cooldowns).forEach(key => delete cooldowns[key]);
+      base.player.maxHp = 5000 + (activeBattleItems.guardCharm ? 1000 : 0);
+      base.enemy.maxHp = currentStage.enemyBaseHp;
+      base.player.hp = base.player.maxHp;
+      base.enemy.hp = base.enemy.maxHp;
+      base.player.flash = 0;
+      base.enemy.flash = 0;
+      elapsed = 0;
+      money = 180 + (activeBattleItems.boneBoost ? 400 : 0);
+      moneyMax = 1200;
+      incomeLevel = 1;
+      cannonCharge = activeBattleItems.howlCharge ? 0.75 : 0;
+      scheduleIndex = 0;
+      nextAmbientSpawn = 73;
+      ambientSpawnsRemaining = 6;
+      gameSpeed = saveData.options.autoSpeed ? 2 : 1;
+      paused = false;
+      ended = false;
+      running = true;
+      battleDeckPage = 0;
+      messageTimer = 0;
+      cameraShake = 0;
+      stats = { deployed: 0, defeated: 0 };
+      ui.speedButton.textContent = `×${gameSpeed}`;
+      ui.pauseButton.textContent = "Ⅱ";
+      ui.pauseMenu.classList.add("hidden");
+      ui.startScreen.classList.add("hidden");
+      ui.baseScreen.classList.add("hidden");
+      ui.resultScreen.classList.add("hidden");
+      document.querySelector(".hud").classList.remove("menu-hidden");
+      buildUnitButtons();
+      seedClouds();
+      refreshUI();
+      showMessage(`${currentStage.name}へ出陣！ ごはんを増やし、わんこハウスを守れ！`, "#2c8da3");
+      lastTime = performance.now();
+    }
+
+    function seedClouds() {
+      clouds.length = 0;
+      for (let i = 0; i < 8; i++) {
+        clouds.push({
+          x: Math.random() * WORLD.width,
+          y: 90 + Math.random() * 250,
+          size: 40 + Math.random() * 75,
+          speed: 4 + Math.random() * 7
+        });
+      }
+    }
+
+    function deploy(typeId) {
+      if (!running || paused || ended) return;
+      const baseType = getDeckTypes().find(item => item.id === typeId);
+      const type = baseType ? getEffectiveAllyType(typeId) : null;
+      if (!type || (cooldowns[type.id] || 0) > 0) return;
+      if (units.filter(unit => unit.team === "ally").length >= UNIT_LIMIT) {
+        showMessage("これ以上は同時に出撃できません", "#ef6f5e");
+        tone(120, 0.08, "square", 0.025);
+        return;
+      }
+      if (money < type.cost) {
+        showMessage("ほねが足りません", "#ef6f5e");
+        tone(120, 0.08, "square", 0.025);
+        return;
+      }
+      money -= type.cost;
+      cooldowns[type.id] = type.cooldown;
+      units.push(createUnit(type, "ally", PLAYER_BASE_X + 78 + Math.random() * 10));
+      stats.deployed++;
+      burst(PLAYER_BASE_X + 70, WORLD.groundY - 16, type.accent, 8, 80);
+      tone(340 + Math.max(0, allyTypes.findIndex(entry => entry.id === type.id)) * 45, 0.06, "square", 0.025);
+      refreshUI();
+    }
+
+    function createUnit(type, team, x) {
+      return {
+        uid: Math.random().toString(36).slice(2),
+        type,
+        team,
+        x,
+        y: WORLD.groundY,
+        hp: type.hp,
+        maxHp: type.hp,
+        attackTimer: 0.15 + Math.random() * 0.25,
+        hitFlash: 0,
+        attackFlash: 0,
+        walkPhase: Math.random() * Math.PI * 2,
+        dead: false,
+        knockback: 0
+      };
+    }
+
+    function queueEnemy(typeId, delay = 0) {
+      spawnQueue.push({ typeId, at: elapsed + delay });
+    }
+
+    function spawnEnemy(typeId) {
+      const type = enemyTypes[typeId];
+      if (!type) return;
+      units.push(createUnit(type, "enemy", ENEMY_BASE_X - 82 - Math.random() * 12));
+      burst(ENEMY_BASE_X - 62, WORLD.groundY - 15, type.accent, 7, 70);
+      tone(type.role === "boss" ? 76 : 145, type.role === "boss" ? 0.32 : 0.05, "sawtooth", type.role === "boss" ? 0.05 : 0.018);
+      if (type.role === "boss") {
+        showMessage("巨神にゃん出現！ 遠吠えを温存せよ！", "#ef6f5e");
+        cameraShake = 9;
+      }
+    }
+
+    function upgradeIncome() {
+      if (!running || paused || ended || incomeLevel >= 8) return;
+      const cost = getUpgradeCost();
+      if (money < cost) {
+        showMessage("ごはんを増やすほねが足りません", "#ef6f5e");
+        tone(120, 0.08, "square", 0.025);
+        return;
+      }
+      money -= cost;
+      incomeLevel++;
+      moneyMax = 1200 + (incomeLevel - 1) * 400;
+      showMessage(`ごはんレベル ${incomeLevel}：ほねの増加速度と上限が上昇`, "#58a96f");
+      tone(520, 0.1, "sine", 0.035);
+      setTimeout(() => tone(690, 0.12, "sine", 0.03), 75);
+      refreshUI();
+    }
+
+    function getUpgradeCost() {
+      return 300 + (incomeLevel - 1) * 240;
+    }
+
+    function fireCannon() {
+      if (!running || paused || ended || cannonCharge < 1) return;
+      cannonCharge = 0;
+      cameraShake = 16;
+      projectiles.push({
+        kind: "cannon",
+        x: PLAYER_BASE_X + 55,
+        y: WORLD.groundY - 145,
+        vx: 1160,
+        life: 1.3
+      });
+      tone(72, 0.38, "sawtooth", 0.09);
+      showMessage("遠吠え発動！ ネコ軍団を押し戻した！", "#2c8da3");
+      refreshUI();
+    }
+
+    function resolveCannonImpact() {
+      const targets = units.filter(unit => unit.team === "enemy" && !unit.dead);
+      for (const target of targets) {
+        damageUnit(target, target.type.role === "boss" ? 450 : 550, null, true);
+        target.knockback += target.type.role === "boss" ? 75 : 145;
+      }
+      burst(1180, WORLD.groundY - 30, "#f3bd4d", 45, 230);
+      cameraShake = 20;
+      tone(48, 0.42, "square", 0.08);
+    }
+
+    function update(dt) {
+      elapsed += dt;
+      money = Math.min(moneyMax, money + (31 + incomeLevel * 13) * dt);
+      cannonCharge = Math.min(1, cannonCharge + dt / 20);
+      base.player.flash = Math.max(0, base.player.flash - dt * 4);
+      base.enemy.flash = Math.max(0, base.enemy.flash - dt * 4);
+      cameraShake *= Math.pow(0.025, dt);
+
+      for (const type of allyTypes) {
+        cooldowns[type.id] = Math.max(0, (cooldowns[type.id] || 0) - dt);
+      }
+
+      const schedule = currentStage.schedule;
+      while (scheduleIndex < schedule.length && elapsed >= schedule[scheduleIndex].time) {
+        const event = schedule[scheduleIndex++];
+        for (let i = 0; i < event.count; i++) queueEnemy(event.type, i * event.gap);
+      }
+
+      if (ambientSpawnsRemaining > 0 && elapsed >= nextAmbientSpawn) {
+        const lateTypes = elapsed > 105
+          ? ["battlecat", "legcat", "wallcat"]
+          : ["smallcat", "rushcat", "legcat"];
+        queueEnemy(lateTypes[Math.floor(Math.random() * lateTypes.length)]);
+        if (elapsed > 95 && Math.random() < 0.35) queueEnemy("smallcat", 0.7);
+        ambientSpawnsRemaining--;
+        nextAmbientSpawn += Math.max(2.8, 6.2 - elapsed * 0.018);
+      }
+
+      for (let i = spawnQueue.length - 1; i >= 0; i--) {
+        if (spawnQueue[i].at <= elapsed) {
+          spawnEnemy(spawnQueue[i].typeId);
+          spawnQueue.splice(i, 1);
+        }
+      }
+
+      updateWaveLabel();
+      updateUnits(dt);
+      updateProjectiles(dt);
+      updateParticles(dt);
+      updateClouds(dt);
+
+      if (messageTimer > 0) {
+        messageTimer -= dt;
+        if (messageTimer <= 0) ui.message.classList.remove("show");
+      }
+
+      refreshUI();
+    }
+
+    function updateWaveLabel() {
+      let label = "第1波・ネコ小隊";
+      if (elapsed >= 16) label = "第2波・勇者にゃん隊";
+      if (elapsed >= 31) label = "第3波・空と脚長";
+      if (elapsed >= 48) label = "最終波・ネコ総攻撃";
+      if (elapsed >= 56) label = "BOSS・巨神にゃん";
+      if (elapsed >= 72) label = "ネコ要塞へ反撃";
+      ui.waveName.textContent = label;
+    }
+
+    function updateUnits(dt) {
+      const activeUnits = units.filter(unit => !unit.dead);
+      activeUnits.sort((a, b) => a.x - b.x);
+
+      for (const unit of activeUnits) {
+        unit.hitFlash = Math.max(0, unit.hitFlash - dt * 7);
+        unit.attackFlash = Math.max(0, unit.attackFlash - dt * 6);
+        unit.attackTimer -= dt;
+        unit.walkPhase += dt * (3.5 + unit.type.speed * 0.045);
+
+        if (unit.knockback > 0) {
+          const direction = unit.team === "ally" ? -1 : 1;
+          unit.x += direction * Math.min(unit.knockback, 300) * dt;
+          unit.knockback = Math.max(0, unit.knockback - 360 * dt);
+          continue;
+        }
+
+        const opponents = activeUnits.filter(other => other.team !== unit.team && !other.dead);
+        const target = findTarget(unit, opponents);
+        const enemyBaseDistance = unit.team === "ally"
+          ? ENEMY_BASE_X - unit.x - 37
+          : unit.x - PLAYER_BASE_X - 37;
+
+        if (target) {
+          const distance = Math.abs(target.x - unit.x) - (unit.type.size + target.type.size) * 0.38;
+          if (distance <= unit.type.range) {
+            if (unit.attackTimer <= 0) attackUnit(unit, target);
+          } else {
+            moveUnit(unit, dt);
+          }
+        } else if (enemyBaseDistance <= unit.type.range) {
+          if (unit.attackTimer <= 0) attackBase(unit);
+        } else {
+          moveUnit(unit, dt);
+        }
+      }
+
+      for (let i = units.length - 1; i >= 0; i--) {
+        if (units[i].dead) units.splice(i, 1);
+      }
+    }
+
+    function findTarget(unit, opponents) {
+      const direction = unit.team === "ally" ? 1 : -1;
+      let nearest = null;
+      let nearestDistance = Infinity;
+      for (const other of opponents) {
+        const delta = (other.x - unit.x) * direction;
+        if (delta < -35) continue;
+        const distance = Math.abs(delta);
+        if (distance < nearestDistance) {
+          nearest = other;
+          nearestDistance = distance;
+        }
+      }
+      return nearest;
+    }
+
+    function moveUnit(unit, dt) {
+      const direction = unit.team === "ally" ? 1 : -1;
+      unit.x += direction * unit.type.speed * dt;
+    }
+
+    function attackUnit(attacker, target) {
+      attacker.attackTimer = attacker.type.attackRate;
+      attacker.attackFlash = 1;
+      const ranged = attacker.type.range > 130;
+      if (ranged) {
+        projectiles.push({
+          kind: attacker.type.role === "gunner" ? "shot" : "arc",
+          team: attacker.team,
+          x: attacker.x,
+          y: WORLD.groundY - attacker.type.size * 1.25,
+          target,
+          damage: attacker.type.damage,
+          source: attacker,
+          speed: attacker.type.role === "gunner" ? 620 : 350,
+          life: 2
+        });
+        tone(attacker.type.role === "gunner" ? 105 : 260, 0.045, "square", 0.018);
+      } else {
+        damageUnit(target, attacker.type.damage, attacker);
+        if (attacker.type.splash) applySplash(attacker, target.x, attacker.type.splash, attacker.type.damage * 0.55);
+        target.knockback += attacker.type.role === "captain" || attacker.type.role === "boss" ? 48 : 10;
+        tone(attacker.type.role === "boss" ? 70 : 185, 0.04, "square", 0.015);
+      }
+    }
+
+    function attackBase(attacker) {
+      attacker.attackTimer = attacker.type.attackRate;
+      attacker.attackFlash = 1;
+      const targetBase = attacker.team === "ally" ? base.enemy : base.player;
+      const damage = attacker.type.damage;
+      targetBase.hp = Math.max(0, targetBase.hp - damage);
+      targetBase.flash = 1;
+      const impactX = attacker.team === "ally" ? ENEMY_BASE_X - 18 : PLAYER_BASE_X + 18;
+      burst(impactX, WORLD.groundY - 70, attacker.team === "ally" ? "#f3bd4d" : "#ef6f5e", 7, 90);
+      cameraShake = Math.max(cameraShake, 4);
+      floatingTexts.push({
+        x: impactX, y: WORLD.groundY - 120, text: `-${Math.round(damage)}`,
+        color: "#ef6f5e", life: 0.8, maxLife: 0.8
+      });
+      if (targetBase.hp <= 0) finishGame(attacker.team === "ally");
+    }
+
+    function damageUnit(target, amount, attacker, cannon = false) {
+      if (target.dead) return;
+      target.hp -= amount;
+      target.hitFlash = 1;
+      const color = target.team === "enemy" ? "#f3bd4d" : "#ef6f5e";
+      burst(target.x, WORLD.groundY - target.type.size, color, cannon ? 10 : 4, cannon ? 130 : 65);
+      if (amount >= 60 || cannon) {
+        floatingTexts.push({
+          x: target.x,
+          y: WORLD.groundY - target.type.size * 1.8,
+          text: `-${Math.round(amount)}`,
+          color,
+          life: 0.7,
+          maxLife: 0.7
+        });
+      }
+      if (target.hp <= 0) {
+        target.dead = true;
+        burst(target.x, WORLD.groundY - target.type.size, target.type.color, 16, 150);
+        if (target.team === "enemy") {
+          money = Math.min(moneyMax, money + target.type.reward);
+          stats.defeated++;
+          if (target.type.role === "boss") {
+            showMessage("巨神にゃん撃破！ ネコ要塞へ反撃だ！", "#58a96f");
+            tone(620, 0.18, "sine", 0.04);
+          }
+        }
+      }
+    }
+
+    function applySplash(attacker, centerX, radius, damage) {
+      for (const unit of units) {
+        if (unit.dead || unit.team === attacker.team) continue;
+        if (Math.abs(unit.x - centerX) <= radius) damageUnit(unit, damage, attacker);
+      }
+    }
+
+    function updateProjectiles(dt) {
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        const projectile = projectiles[i];
+        projectile.life -= dt;
+
+        if (projectile.kind === "cannon") {
+          projectile.x += projectile.vx * dt;
+          projectile.y -= 20 * dt;
+          if (projectile.x >= 1180) {
+            resolveCannonImpact();
+            projectiles.splice(i, 1);
+            continue;
+          }
+        } else {
+          if (!projectile.target || projectile.target.dead) {
+            projectile.life = 0;
+          } else {
+            const tx = projectile.target.x;
+            const ty = WORLD.groundY - projectile.target.type.size;
+            const dx = tx - projectile.x;
+            const dy = ty - projectile.y;
+            const distance = Math.hypot(dx, dy);
+            const step = projectile.speed * dt;
+            if (distance <= step + 8) {
+              damageUnit(projectile.target, projectile.damage, projectile.source);
+              if (projectile.source && projectile.source.type.splash) {
+                applySplash(projectile.source, tx, projectile.source.type.splash, projectile.damage * 0.55);
+              }
+              projectiles.splice(i, 1);
+              continue;
+            }
+            projectile.x += dx / distance * step;
+            projectile.y += dy / distance * step;
+          }
+        }
+
+        if (projectile.life <= 0) projectiles.splice(i, 1);
+      }
+    }
+
+    function burst(x, y, color, count, power) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = power * (0.35 + Math.random() * 0.65);
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 30,
+          size: 2 + Math.random() * 5,
+          color,
+          life: 0.28 + Math.random() * 0.48,
+          maxLife: 0.76,
+          spin: (Math.random() - 0.5) * 9,
+          angle: Math.random() * Math.PI
+        });
+      }
+    }
+
+    function updateParticles(dt) {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const particle = particles[i];
+        particle.x += particle.vx * dt;
+        particle.y += particle.vy * dt;
+        particle.vy += 210 * dt;
+        particle.vx *= Math.pow(0.2, dt);
+        particle.angle += particle.spin * dt;
+        particle.life -= dt;
+        if (particle.life <= 0) particles.splice(i, 1);
+      }
+
+      for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        floatingTexts[i].y -= 45 * dt;
+        floatingTexts[i].life -= dt;
+        if (floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
+      }
+    }
+
+    function updateClouds(dt) {
+      for (const cloud of clouds) {
+        cloud.x += cloud.speed * dt;
+        if (cloud.x - cloud.size * 2 > WORLD.width) cloud.x = -cloud.size * 2;
+      }
+    }
+
+    function finishGame(victory) {
+      if (ended) return;
+      ended = true;
+      running = false;
+      paused = false;
+      ui.pauseMenu.classList.add("hidden");
+      let rewardText = "";
+      if (victory) {
+        const firstClear = !saveData.clearedStages[currentStage.id];
+        const xpReward = currentStage.rewardXp + stats.defeated * 6 + (firstClear ? 180 : 0);
+        const boneReward = currentStage.rewardBones + (firstClear ? 30 : 0);
+        saveData.xp += xpReward;
+        saveData.boneCans += boneReward;
+        saveData.clearedStages[currentStage.id] = true;
+        saveData.energy = Math.min(60, saveData.energy + 4);
+        saveGame();
+        rewardText = ` 報酬: XP ${xpReward.toLocaleString("ja-JP")} / ほね缶 ${boneReward}`;
+      } else {
+        saveData.energy = Math.min(60, saveData.energy + 2);
+        saveGame();
+      }
+      ui.resultEyebrow.textContent = victory ? "WANKO HOUSE SAFE" : "WANKO HOUSE LOST";
+      ui.resultTitle.textContent = victory ? "防衛成功" : "防衛失敗";
+      ui.resultText.textContent = victory
+        ? `ネコ要塞を落とし、わんこハウスを守り抜きました。${rewardText}`
+        : "わんこハウスが陥落しました。ごはん増量と出撃順を見直しましょう。";
+      ui.resultTitle.style.color = victory ? "#2c8da3" : "#ef6f5e";
+      ui.resultTime.textContent = formatTime(elapsed);
+      ui.resultDeployed.textContent = stats.deployed;
+      ui.resultDefeated.textContent = stats.defeated;
+      setTimeout(() => ui.resultScreen.classList.remove("hidden"), 650);
+      tone(victory ? 520 : 85, 0.45, victory ? "sine" : "sawtooth", 0.07);
+      if (victory) {
+        setTimeout(() => tone(660, 0.42, "sine", 0.06), 130);
+        setTimeout(() => tone(820, 0.5, "sine", 0.05), 260);
+      }
+    }
+
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remaining = Math.floor(seconds % 60).toString().padStart(2, "0");
+      return `${minutes}:${remaining}`;
+    }
+
+    function togglePause() {
+      if (!running || ended) return;
+      paused = !paused;
+      ui.pauseButton.textContent = paused ? "▶" : "Ⅱ";
+      ui.pauseMenu.classList.toggle("hidden", !paused);
+      updateDeckSwitchButton();
+      showMessage(paused ? "一時停止中" : "戦闘再開", paused ? "#607581" : "#2c8da3");
+      lastTime = performance.now();
+    }
+
+    function retreatBattle() {
+      if (!running && !paused) return;
+      running = false;
+      paused = false;
+      ended = false;
+      ui.pauseButton.textContent = "Ⅱ";
+      ui.pauseMenu.classList.add("hidden");
+      showBaseScreen("stagePanel");
+    }
+
+    function toggleSpeed() {
+      if (!running || ended) return;
+      gameSpeed = gameSpeed === 1 ? 2 : 1;
+      ui.speedButton.textContent = `×${gameSpeed}`;
+      showMessage(`戦闘速度 ×${gameSpeed}`, "#2c8da3");
+    }
+
+    function showMessage(text, color = "#2c8da3") {
+      ui.message.textContent = text;
+      ui.message.style.color = color;
+      ui.message.classList.add("show");
+      messageTimer = 2.15;
+    }
+
+    function refreshUI() {
+      ui.money.textContent = Math.floor(money).toLocaleString("ja-JP");
+      ui.moneyMax.textContent = ` / ${moneyMax.toLocaleString("ja-JP")}`;
+      ui.incomeLevel.textContent = incomeLevel;
+      const upgradeCost = getUpgradeCost();
+      ui.upgradeCost.textContent = incomeLevel >= 8 ? "最大増量" : `増量 ${upgradeCost}`;
+      ui.upgradeButton.disabled = incomeLevel >= 8 || money < upgradeCost || paused || !running;
+
+      ui.playerHpText.textContent = `${Math.ceil(base.player.hp)} / ${base.player.maxHp}`;
+      ui.enemyHpText.textContent = `${Math.ceil(base.enemy.hp)} / ${base.enemy.maxHp}`;
+      ui.playerHpBar.style.width = `${Math.max(0, base.player.hp / base.player.maxHp * 100)}%`;
+      ui.enemyHpBar.style.width = `${Math.max(0, base.enemy.hp / base.enemy.maxHp * 100)}%`;
+
+      const percent = Math.floor(cannonCharge * 100);
+      ui.cannonLabel.textContent = cannonCharge >= 1 ? "遠吠え READY" : `遠吠え ${percent}%`;
+      ui.cannonButton.disabled = cannonCharge < 1 || paused || !running;
+      ui.cannonButton.classList.toggle("ready", cannonCharge >= 1 && running && !paused);
+      ui.cannonMeter.style.height = `${(1 - cannonCharge) * 100}%`;
+      updateDeckSwitchButton();
+
+      document.querySelectorAll(".unit-button").forEach(button => {
+        const type = allyTypes.find(item => item.id === button.dataset.unit);
+        if (!type) return;
+        const remaining = cooldowns[type.id] || 0;
+        button.disabled = money < type.cost || remaining > 0 || paused || !running;
+        const cooldown = button.querySelector(".cooldown");
+        cooldown.style.height = `${Math.min(100, remaining / type.cooldown * 100)}%`;
+      });
+    }
+
+    function tone(frequency = 440, duration = 0.08, type = "square", volume = 0.025) {
+      if (!saveData.options.se) return;
+      try {
+        audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+        if (audioContext.state === "suspended") audioContext.resume();
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        gain.gain.setValueAtTime(volume, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+        oscillator.connect(gain).connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + duration);
+      } catch (_) {}
+    }
+
+    function draw() {
+      ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      ctx.clearRect(0, 0, innerWidth, innerHeight);
+      ctx.save();
+      ctx.translate(offsetX, offsetY);
+      ctx.scale(scale, scale);
+
+      const shakeX = (Math.random() - 0.5) * cameraShake;
+      const shakeY = (Math.random() - 0.5) * cameraShake * 0.45;
+      ctx.translate(shakeX, shakeY);
+
+      drawBackground();
+      drawBases();
+      drawUnits();
+      drawProjectiles();
+      drawParticles();
+      drawForeground();
+
+      if (paused && running) {
+        ctx.fillStyle = "rgba(16, 43, 63, 0.28)";
+        ctx.fillRect(0, 0, WORLD.width, WORLD.height);
+        ctx.save();
+        ctx.translate(WORLD.width / 2, WORLD.height / 2 - 50);
+        ctx.rotate(-0.02);
+        ctx.fillStyle = "#fff8df";
+        ctx.strokeStyle = "#102b3f";
+        ctx.lineWidth = 6;
+        roundRect(-180, -58, 360, 116, 12);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#102b3f";
+        ctx.font = "900 35px Yu Gothic UI";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("一時停止", 0, 0);
+        ctx.restore();
+      }
+
+      ctx.restore();
+    }
+
+    function drawBackground() {
+      const sky = ctx.createLinearGradient(0, 0, 0, WORLD.groundY);
+      sky.addColorStop(0, "#74c9d5");
+      sky.addColorStop(0.7, "#c7e7d6");
+      sky.addColorStop(1, "#f4ddac");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, WORLD.width, WORLD.height);
+
+      ctx.fillStyle = "rgba(255, 242, 184, 0.88)";
+      ctx.beginPath();
+      ctx.arc(1245, 135, 62, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255, 248, 210, 0.4)";
+      ctx.lineWidth = 15;
+      ctx.stroke();
+
+      for (const cloud of clouds) drawCloud(cloud);
+
+      ctx.fillStyle = "#6aa6a4";
+      ctx.beginPath();
+      ctx.moveTo(0, 460);
+      for (let x = 0; x <= WORLD.width; x += 90) {
+        const y = 435 + Math.sin(x * 0.009) * 28 + Math.sin(x * 0.021) * 17;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(WORLD.width, WORLD.groundY);
+      ctx.lineTo(0, WORLD.groundY);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#367b82";
+      ctx.beginPath();
+      ctx.moveTo(0, 515);
+      for (let x = 0; x <= WORLD.width; x += 75) {
+        const y = 505 + Math.sin(x * 0.013 + 1) * 22;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(WORLD.width, WORLD.groundY);
+      ctx.lineTo(0, WORLD.groundY);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#347f91";
+      ctx.fillRect(0, 545, WORLD.width, WORLD.groundY - 545);
+      ctx.strokeStyle = "rgba(216, 250, 239, 0.34)";
+      ctx.lineWidth = 4;
+      for (let y = 565; y < WORLD.groundY; y += 22) {
+        ctx.beginPath();
+        for (let x = -20; x < WORLD.width + 40; x += 75) {
+          ctx.moveTo(x, y);
+          ctx.quadraticCurveTo(x + 18, y - 6, x + 36, y);
+          ctx.quadraticCurveTo(x + 54, y + 6, x + 72, y);
+        }
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = "#c79558";
+      ctx.fillRect(0, WORLD.groundY, WORLD.width, WORLD.height - WORLD.groundY);
+      ctx.fillStyle = "#e0bb78";
+      ctx.fillRect(0, WORLD.groundY, WORLD.width, 22);
+      ctx.strokeStyle = "rgba(102, 67, 45, 0.18)";
+      ctx.lineWidth = 3;
+      for (let x = 20; x < WORLD.width; x += 64) {
+        ctx.beginPath();
+        ctx.moveTo(x, WORLD.groundY + 25);
+        ctx.lineTo(x - 15, WORLD.height);
+        ctx.stroke();
+      }
+
+      drawDistantHarbor();
+    }
+
+    function drawCloud(cloud) {
+      ctx.save();
+      ctx.translate(cloud.x, cloud.y);
+      ctx.fillStyle = "rgba(255, 251, 226, 0.75)";
+      ctx.beginPath();
+      ctx.arc(-cloud.size * 0.45, 3, cloud.size * 0.35, 0, Math.PI * 2);
+      ctx.arc(0, -cloud.size * 0.13, cloud.size * 0.48, 0, Math.PI * 2);
+      ctx.arc(cloud.size * 0.48, 4, cloud.size * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawDistantHarbor() {
+      ctx.fillStyle = "rgba(24, 70, 80, 0.48)";
+      for (let x = 280; x < 1320; x += 190) {
+        const h = 45 + (x % 3) * 12;
+        ctx.fillRect(x, 500 - h, 80, h);
+        ctx.beginPath();
+        ctx.moveTo(x - 8, 500 - h);
+        ctx.lineTo(x + 40, 475 - h);
+        ctx.lineTo(x + 88, 500 - h);
+        ctx.fill();
+      }
+      ctx.lineWidth = 7;
+      ctx.strokeStyle = "rgba(24, 70, 80, 0.45)";
+      ctx.beginPath();
+      ctx.moveTo(710, 480);
+      ctx.lineTo(710, 362);
+      ctx.lineTo(800, 480);
+      ctx.moveTo(710, 382);
+      ctx.lineTo(780, 382);
+      ctx.stroke();
+    }
+
+    function drawBases() {
+      drawPlayerBase();
+      drawEnemyBase();
+    }
+
+    function drawPlayerBase() {
+      ctx.save();
+      ctx.translate(PLAYER_BASE_X, WORLD.groundY);
+      if (base.player.flash > 0) ctx.globalAlpha = 0.55 + Math.sin(base.player.flash * 30) * 0.35;
+
+      ctx.fillStyle = "rgba(16, 43, 63, 0.2)";
+      ctx.beginPath();
+      ctx.ellipse(5, 5, 95, 22, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#fff3cc";
+      ctx.strokeStyle = "#173042";
+      ctx.lineWidth = 6;
+      roundRect(-60, -150, 118, 150, 14);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#ef6f5e";
+      ctx.beginPath();
+      ctx.moveTo(-72, -150);
+      ctx.lineTo(0, -205);
+      ctx.lineTo(72, -150);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#fff8df";
+      roundRect(-38, -137, 76, 25, 6);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#8b5a3b";
+      ctx.font = "900 17px Yu Gothic UI";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("BONE", 0, -124);
+
+      ctx.fillStyle = "#2c8da3";
+      ctx.beginPath();
+      ctx.arc(0, -78, 28, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#fff8df";
+      ctx.beginPath();
+      ctx.arc(-8, -82, 5, 0, Math.PI * 2);
+      ctx.arc(8, -82, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#173042";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-11, -65);
+      ctx.quadraticCurveTo(0, -57, 11, -65);
+      ctx.stroke();
+
+      ctx.fillStyle = "#314f68";
+      ctx.fillRect(-13, -235, 26, 34);
+      ctx.fillStyle = "#f3bd4d";
+      ctx.beginPath();
+      ctx.arc(0, -218, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawEnemyBase() {
+      ctx.save();
+      ctx.translate(ENEMY_BASE_X, WORLD.groundY);
+      if (base.enemy.flash > 0) ctx.globalAlpha = 0.55 + Math.sin(base.enemy.flash * 30) * 0.35;
+
+      ctx.fillStyle = "rgba(16, 43, 63, 0.22)";
+      ctx.beginPath();
+      ctx.ellipse(-5, 5, 96, 23, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#fff7df";
+      ctx.strokeStyle = "#211f2c";
+      ctx.lineWidth = 6;
+      roundRect(-62, -156, 124, 156, 12);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#e8e2c7";
+      ctx.beginPath();
+      ctx.moveTo(-70, -154);
+      ctx.lineTo(-32, -212);
+      ctx.lineTo(-6, -154);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(70, -154);
+      ctx.lineTo(32, -212);
+      ctx.lineTo(6, -154);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#cf4f52";
+      roundRect(-49, -132, 98, 24, 5);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#211f2c";
+      ctx.font = "900 15px Yu Gothic UI";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("NEKO", 0, -120);
+
+      ctx.fillStyle = "#2c8da3";
+      ctx.beginPath();
+      ctx.arc(0, -72, 30, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#fff8df";
+      ctx.beginPath();
+      ctx.arc(-10, -77, 5, 0, Math.PI * 2);
+      ctx.arc(10, -77, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#211f2c";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-12, -61);
+      ctx.lineTo(12, -61);
+      ctx.stroke();
+
+      ctx.fillStyle = "#ef6f5e";
+      ctx.strokeStyle = "#211f2c";
+      ctx.lineWidth = 6;
+      ctx.fillRect(-21, -235, 16, 77);
+      ctx.strokeRect(-21, -235, 16, 77);
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-5, -228);
+      ctx.lineTo(70, -204);
+      ctx.lineTo(-5, -178);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawUnits() {
+      const sorted = [...units].sort((a, b) => a.x - b.x);
+      for (const unit of sorted) {
+        drawUnitShadow(unit);
+        if (!drawSpriteUnit(unit)) {
+          if (unit.team === "ally") drawAlly(unit);
+          else drawEnemy(unit);
+        }
+        drawUnitHealth(unit);
+      }
+    }
+
+    function drawSpriteUnit(unit) {
+      const image = spriteImages[unit.type.id];
+      if (!image || !image.complete || !image.naturalWidth) return false;
+
+      const bob = Math.sin(unit.walkPhase) * (unit.attackFlash > 0 ? 1 : 2.2);
+      const attackLean = unit.attackFlash > 0 ? (unit.team === "ally" ? 0.1 : -0.1) : 0;
+      const heightScale = unit.type.role === "boss" || unit.type.id === "paondog" ? 3.35 : 2.85;
+      const height = unit.type.size * heightScale;
+      const width = height * image.naturalWidth / image.naturalHeight;
+
+      ctx.save();
+      ctx.translate(unit.x, WORLD.groundY + bob);
+      ctx.rotate(attackLean);
+      if (unit.hitFlash > 0) ctx.filter = "brightness(1.8)";
+      ctx.drawImage(image, -width / 2, -height, width, height);
+      ctx.restore();
+      return true;
+    }
+
+    function drawUnitShadow(unit) {
+      ctx.fillStyle = "rgba(16, 43, 63, 0.2)";
+      ctx.beginPath();
+      ctx.ellipse(unit.x, WORLD.groundY + 3, unit.type.size * 0.75, unit.type.size * 0.22, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawAlly(unit) {
+      const type = unit.type;
+      const bob = Math.sin(unit.walkPhase) * (unit.attackFlash > 0 ? 1 : 2.5);
+      const lean = unit.attackFlash > 0 ? 0.14 : Math.sin(unit.walkPhase * 0.5) * 0.035;
+      ctx.save();
+      ctx.translate(unit.x, WORLD.groundY - type.size + bob);
+      ctx.rotate(lean);
+      if (unit.hitFlash > 0) ctx.filter = "brightness(2)";
+
+      ctx.strokeStyle = "#173042";
+      ctx.lineWidth = Math.max(3, type.size * 0.12);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      ctx.strokeStyle = type.accent;
+      ctx.lineWidth = Math.max(4, type.size * 0.12);
+      ctx.beginPath();
+      ctx.moveTo(-type.size * 0.55, type.size * 0.08);
+      ctx.quadraticCurveTo(-type.size * 0.98, -type.size * 0.18, -type.size * 0.62, -type.size * 0.45);
+      ctx.stroke();
+      ctx.strokeStyle = "#173042";
+      ctx.lineWidth = Math.max(3, type.size * 0.12);
+
+      if (type.role === "tank") {
+        ctx.fillStyle = type.accent;
+        roundRect(-type.size * 0.9, -type.size * 0.75, type.size * 1.25, type.size * 1.7, 10);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = type.color;
+        ctx.beginPath();
+        ctx.arc(type.size * 0.28, -type.size * 0.18, type.size * 0.55, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        drawDogFace(type.size * 0.32, -type.size * 0.17, type.size);
+      } else {
+        ctx.fillStyle = type.color;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, type.size * 0.68, type.size * 0.82, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        if (type.role === "captain") {
+          ctx.fillStyle = type.accent;
+          ctx.beginPath();
+          ctx.moveTo(-type.size * 0.55, -type.size * 0.55);
+          ctx.lineTo(type.size * 0.55, -type.size * 0.55);
+          ctx.lineTo(type.size * 0.32, -type.size * 1.02);
+          ctx.lineTo(-type.size * 0.2, -type.size * 1.08);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          ctx.strokeStyle = type.accent;
+          ctx.lineWidth = 7;
+          ctx.beginPath();
+          ctx.moveTo(type.size * 0.55, 0);
+          ctx.lineTo(type.size * 1.12, -type.size * 0.6);
+          ctx.stroke();
+        } else if (type.role === "ranged") {
+          ctx.strokeStyle = type.accent;
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.moveTo(type.size * 0.42, type.size * 0.2);
+          ctx.lineTo(type.size * 1.45, -type.size * 0.85);
+          ctx.stroke();
+          ctx.fillStyle = type.accent;
+          ctx.beginPath();
+          ctx.moveTo(type.size * 1.45, -type.size * 0.85);
+          ctx.lineTo(type.size * 1.05, -type.size * 0.7);
+          ctx.lineTo(type.size * 1.3, -type.size * 0.42);
+          ctx.closePath();
+          ctx.fill();
+        } else if (type.role === "gunner") {
+          ctx.fillStyle = type.accent;
+          roundRect(type.size * 0.2, -type.size * 0.36, type.size * 1.02, type.size * 0.45, 4);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = "#f3bd4d";
+          ctx.beginPath();
+          ctx.arc(-type.size * 0.2, -type.size * 0.66, type.size * 0.17, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = type.accent;
+          ctx.beginPath();
+          ctx.moveTo(-type.size * 0.58, -type.size * 0.45);
+          ctx.lineTo(-type.size * 0.22, -type.size * 0.95);
+          ctx.lineTo(0, -type.size * 0.5);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+        drawDogFace(type.size * 0.18, -type.size * 0.1, type.size);
+      }
+
+      drawLegs(type.size, unit.walkPhase, "#173042");
+      ctx.restore();
+    }
+
+    function drawEnemy(unit) {
+      const type = unit.type;
+      const bob = Math.sin(unit.walkPhase) * 2.2;
+      const facing = -1;
+      ctx.save();
+      ctx.translate(unit.x, WORLD.groundY - type.size + bob);
+      ctx.scale(facing, 1);
+      if (unit.hitFlash > 0) ctx.filter = "brightness(2)";
+
+      ctx.strokeStyle = "#302533";
+      ctx.lineWidth = Math.max(3, type.size * 0.12);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.fillStyle = type.color;
+
+      if (type.role === "boss") {
+        ctx.beginPath();
+        ctx.ellipse(0, 0, type.size * 0.78, type.size * 0.9, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = type.accent;
+        ctx.beginPath();
+        ctx.moveTo(-type.size * 0.7, -type.size * 0.45);
+        ctx.lineTo(type.size * 0.7, -type.size * 0.45);
+        ctx.lineTo(type.size * 0.35, -type.size * 1.05);
+        ctx.lineTo(-type.size * 0.45, -type.size * 1.12);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#f3bd4d";
+        ctx.beginPath();
+        ctx.arc(0, -type.size * 0.72, type.size * 0.16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = type.accent;
+        ctx.lineWidth = 9;
+        ctx.beginPath();
+        ctx.moveTo(type.size * 0.65, -type.size * 0.05);
+        ctx.lineTo(type.size * 1.2, -type.size * 0.68);
+        ctx.stroke();
+      } else if (type.role === "brute") {
+        roundRect(-type.size * 0.72, -type.size * 0.75, type.size * 1.45, type.size * 1.6, 11);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = type.accent;
+        roundRect(type.size * 0.3, -type.size * 0.25, type.size * 0.95, type.size * 0.45, 4);
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.ellipse(0, 0, type.size * 0.68, type.size * 0.82, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = type.accent;
+        ctx.beginPath();
+        ctx.moveTo(-type.size * 0.58, -type.size * 0.48);
+        ctx.lineTo(-type.size * 0.2, -type.size * 0.95);
+        ctx.lineTo(0, -type.size * 0.5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        if (type.role === "slinger") {
+          ctx.strokeStyle = type.accent;
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(type.size * 0.62, -type.size * 0.1, type.size * 0.34, -1.2, 1.2);
+          ctx.stroke();
+        }
+      }
+
+      drawEnemyFace(type.size * 0.17, -type.size * 0.08, type.size);
+      drawLegs(type.size, unit.walkPhase, "#302533");
+      ctx.restore();
+    }
+
+    function drawDogFace(x, y, size) {
+      ctx.fillStyle = "#8b5a3b";
+      ctx.beginPath();
+      ctx.ellipse(x - size * 0.46, y - size * 0.02, size * 0.16, size * 0.34, -0.25, 0, Math.PI * 2);
+      ctx.ellipse(x + size * 0.46, y - size * 0.02, size * 0.16, size * 0.34, 0.25, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#173042";
+      ctx.beginPath();
+      ctx.arc(x - size * 0.16, y, Math.max(2.2, size * 0.07), 0, Math.PI * 2);
+      ctx.arc(x + size * 0.16, y, Math.max(2.2, size * 0.07), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#173042";
+      ctx.beginPath();
+      ctx.ellipse(x, y + size * 0.13, size * 0.1, size * 0.07, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#173042";
+      ctx.lineWidth = Math.max(2, size * 0.07);
+      ctx.beginPath();
+      ctx.moveTo(x - size * 0.14, y + size * 0.2);
+      ctx.quadraticCurveTo(x, y + size * 0.29, x + size * 0.16, y + size * 0.18);
+      ctx.stroke();
+    }
+
+    function drawEnemyFace(x, y, size) {
+      ctx.strokeStyle = "#302533";
+      ctx.lineWidth = Math.max(2.5, size * 0.075);
+      ctx.beginPath();
+      ctx.moveTo(x - size * 0.28, y - size * 0.12);
+      ctx.lineTo(x - size * 0.08, y);
+      ctx.moveTo(x + size * 0.28, y - size * 0.12);
+      ctx.lineTo(x + size * 0.08, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x - size * 0.16, y + size * 0.25);
+      ctx.lineTo(x + size * 0.16, y + size * 0.25);
+      ctx.stroke();
+    }
+
+    function drawLegs(size, phase, color) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = Math.max(3, size * 0.11);
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.28, size * 0.62);
+      ctx.lineTo(-size * 0.34 + Math.sin(phase) * size * 0.16, size * 0.98);
+      ctx.moveTo(size * 0.25, size * 0.62);
+      ctx.lineTo(size * 0.31 - Math.sin(phase) * size * 0.16, size * 0.98);
+      ctx.stroke();
+    }
+
+    function drawUnitHealth(unit) {
+      if (unit.hp >= unit.maxHp || unit.dead) return;
+      const width = unit.type.size * 1.5;
+      const y = WORLD.groundY - unit.type.size * 2.25;
+      ctx.fillStyle = "rgba(16, 43, 63, 0.55)";
+      roundRect(unit.x - width / 2, y, width, 6, 3);
+      ctx.fill();
+      ctx.fillStyle = unit.team === "ally" ? "#58a96f" : "#ef6f5e";
+      roundRect(unit.x - width / 2 + 1, y + 1, (width - 2) * Math.max(0, unit.hp / unit.maxHp), 4, 2);
+      ctx.fill();
+    }
+
+    function drawProjectiles() {
+      for (const projectile of projectiles) {
+        ctx.save();
+        ctx.translate(projectile.x, projectile.y);
+        if (projectile.kind === "cannon") {
+          ctx.fillStyle = "#f3bd4d";
+          ctx.shadowColor = "#fff3b0";
+          ctx.shadowBlur = 24;
+          ctx.beginPath();
+          ctx.arc(0, 0, 14, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = "rgba(255, 243, 176, 0.8)";
+          ctx.lineWidth = 8;
+          ctx.beginPath();
+          ctx.moveTo(-70, 0);
+          ctx.lineTo(-10, 0);
+          ctx.stroke();
+        } else if (projectile.kind === "shot") {
+          ctx.fillStyle = "#f3bd4d";
+          ctx.beginPath();
+          ctx.arc(0, 0, 6, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = projectile.team === "ally" ? "#cf6552" : "#574555";
+          ctx.beginPath();
+          ctx.arc(0, 0, 7, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+
+    function drawParticles() {
+      for (const particle of particles) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife);
+        ctx.translate(particle.x, particle.y);
+        ctx.rotate(particle.angle);
+        ctx.fillStyle = particle.color;
+        ctx.fillRect(-particle.size / 2, -particle.size / 2, particle.size, particle.size);
+        ctx.restore();
+      }
+
+      for (const text of floatingTexts) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, text.life / text.maxLife);
+        ctx.fillStyle = text.color;
+        ctx.strokeStyle = "#173042";
+        ctx.lineWidth = 5;
+        ctx.font = "900 24px Yu Gothic UI";
+        ctx.textAlign = "center";
+        ctx.strokeText(text.text, text.x, text.y);
+        ctx.fillText(text.text, text.x, text.y);
+        ctx.restore();
+      }
+    }
+
+    function drawForeground() {
+      ctx.fillStyle = "#77583f";
+      for (let x = 20; x < WORLD.width; x += 110) {
+        ctx.fillRect(x, WORLD.groundY + 85, 72, 12);
+        ctx.fillRect(x + 9, WORLD.groundY + 61, 9, 48);
+        ctx.fillRect(x + 55, WORLD.groundY + 61, 9, 48);
+      }
+
+      const vignette = ctx.createRadialGradient(
+        WORLD.width / 2, WORLD.height / 2, 250,
+        WORLD.width / 2, WORLD.height / 2, 930
+      );
+      vignette.addColorStop(0, "rgba(16, 43, 63, 0)");
+      vignette.addColorStop(1, "rgba(16, 43, 63, 0.2)");
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, WORLD.width, WORLD.height);
+    }
+
+    function roundRect(x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.roundRect(x, y, width, height, Math.min(radius, width / 2, height / 2));
+    }
+
+    function frame(now) {
+      const realDt = Math.min(0.04, Math.max(0, (now - lastTime) / 1000));
+      lastTime = now;
+      if (running && !paused && !ended) update(realDt * gameSpeed);
+      draw();
+      requestAnimationFrame(frame);
+    }
+
+    addEventListener("resize", resize);
+    addEventListener("keydown", event => {
+      if (event.repeat) return;
+      const deck = getBattleDeckTypes();
+      if (running && event.key >= "1" && event.key <= String(deck.length)) {
+        deploy(deck[Number(event.key) - 1].id);
+      } else if (event.code === "Space") {
+        event.preventDefault();
+        fireCannon();
+      } else if (event.key.toLowerCase() === "u") {
+        upgradeIncome();
+      } else if (event.key.toLowerCase() === "p" || event.key === "Escape") {
+        togglePause();
+      } else if (event.key.toLowerCase() === "f") {
+        toggleSpeed();
+      } else if (event.key.toLowerCase() === "r") {
+        switchBattleDeck();
+      }
+    });
+
+    ui.upgradeButton.addEventListener("click", upgradeIncome);
+    ui.cannonButton.addEventListener("click", fireCannon);
+    ui.pauseButton.addEventListener("click", togglePause);
+    ui.resumeButton.addEventListener("click", togglePause);
+    ui.retreatButton.addEventListener("click", retreatBattle);
+    ui.deckSwitchButton.addEventListener("click", switchBattleDeck);
+    ui.speedButton.addEventListener("click", toggleSpeed);
+    ui.singleGachaButton.addEventListener("click", () => pullGacha(1));
+    ui.fiveGachaButton.addEventListener("click", () => pullGacha(5));
+    ui.gachaInfoButton.addEventListener("click", () => {
+      renderGachaInfoList();
+      ui.gachaInfoModal.classList.remove("hidden");
+    });
+    ui.closeGachaInfoButton.addEventListener("click", () => ui.gachaInfoModal.classList.add("hidden"));
+    document.getElementById("startButton").addEventListener("click", () => {
+      showBaseScreen("homePanel");
+      tone(420, 0.1, "sine", 0.035);
+    });
+    document.getElementById("titleOptionsButton").addEventListener("click", () => showBaseScreen("optionPanel"));
+    document.getElementById("restartButton").addEventListener("click", () => startStage(currentStage.id));
+    ui.resultHomeButton.addEventListener("click", () => showBaseScreen("homePanel"));
+
+    document.querySelectorAll("[data-menu]").forEach(button => {
+      button.addEventListener("click", () => {
+        switchMenuPanel(button.dataset.menu);
+        renderAllMenus();
+      });
+    });
+
+    document.querySelectorAll("[data-menu-jump]").forEach(button => {
+      button.addEventListener("click", () => {
+        switchMenuPanel(button.dataset.menuJump);
+        renderAllMenus();
+      });
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && running && !paused) togglePause();
+    });
+
+    createCrowd(ui.titleCrowd);
+    createCrowd(ui.baseCrowd);
+    buildUnitButtons();
+    seedClouds();
+    resize();
+    refreshUI();
+    renderAllMenus();
+    document.querySelector(".hud").classList.add("menu-hidden");
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>
